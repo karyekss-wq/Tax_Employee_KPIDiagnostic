@@ -1,0 +1,4 @@
+task_class,class_name,base_class_weight,base_expected_hours,is_active,updated_at
+A,Simple Individual Return,1.00,2.0,1,2026-04-08 18:00:00
+B,Standard Individual Return,1.35,3.5,1,2026-04-08 18:00:00
+C,Complex Individual Return,1.75,5.0,1,2026-04-08 18:00:00

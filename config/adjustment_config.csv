@@ -1,0 +1,5 @@
+adjustment_code,label,multiplier_add,min_bound,max_bound,is_active,updated_at
+multi_state,Multi-State Filing,0.20,0.10,0.30,1,2026-04-08 18:00:00
+investments,Investment Activity,0.15,0.05,0.25,1,2026-04-08 18:00:00
+rental,Rental Property,0.10,0.05,0.20,1,2026-04-08 18:00:00
+k1,K-1 or Pass-Through Activity,0.25,0.15,0.35,1,2026-04-08 18:00:00
