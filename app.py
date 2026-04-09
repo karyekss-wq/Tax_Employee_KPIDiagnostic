@@ -113,6 +113,26 @@ def render_overview(summary: dict) -> None:
         "and a capped contribution modifier from structured flags."
     )
 
+    st.subheader("Score Breakdown")
+    st.write(
+        "Final Score is calculated as Output Score × Efficiency Score × Accuracy Score × "
+        "Contribution Modifier."
+    )
+
+    b1, b2, b3, b4, b5 = st.columns(5)
+    b1.metric("Output Score", f"{summary['output_score']:.4f}")
+    b2.metric("Efficiency Score", f"{summary['efficiency_score']:.4f}")
+    b3.metric("Accuracy Score", f"{summary['accuracy_score']:.4f}")
+    b4.metric("Contribution Modifier", f"{summary['contribution_modifier']:.4f}")
+    b5.metric("Final Score", f"{summary['final_score']:.4f}")
+
+    st.code(
+        f"{summary['output_score']:.4f} × {summary['efficiency_score']:.4f} × "
+        f"{summary['accuracy_score']:.4f} × {summary['contribution_modifier']:.4f} = "
+        f"{summary['final_score']:.4f}",
+        language="text",
+    )
+
 
 def render_task_breakdown(task_metrics: pd.DataFrame) -> None:
     st.header("Task Breakdown")
@@ -161,41 +181,55 @@ def render_flags_diagnostics(summary: dict, task_metrics: pd.DataFrame) -> None:
     c2.metric("Negative Flags", summary["negative_flags"])
     c3.metric("Performance Index", f"{summary['performance_index']:.4f}")
 
+    diagnostics = summary["diagnostics"]
+
     st.subheader("Diagnostic Notes")
+    st.write(f"- {diagnostics['efficiency_diagnostic']}")
+    st.write(f"- {diagnostics['accuracy_diagnostic']}")
+    st.write(f"- {diagnostics['contribution_diagnostic']}")
+    st.write(f"- {diagnostics['overall_diagnostic']}")
 
-    notes = []
+    st.divider()
 
-    if summary["efficiency_score"] >= 1.0 and summary["accuracy_score"] < 0.8:
-        notes.append(
-            "The intern is meeting or exceeding expected pace, but accuracy remains below target."
-        )
-
-    complex_work = task_metrics[task_metrics["task_class"] == "C"]
-    if not complex_work.empty and complex_work["weighted_errors"].sum() > 0:
-        notes.append(
-            "Higher-complexity returns show review issues, suggesting coaching is most needed on class C work."
-        )
-
-    if summary["positive_flags"] > summary["negative_flags"]:
-        notes.append(
-            "Structured contribution signals are net positive, which supports the view that engagement is not the main issue."
-        )
-
-    if summary["performance_category"] == "Risk":
-        notes.append(
-            "Overall classification is Risk because accuracy drag outweighs otherwise acceptable output and efficiency."
-        )
-
-    if not notes:
-        notes.append("No major diagnostic patterns detected in the current sample.")
-
-    for note in notes:
-        st.write(f"- {note}")
-
-    st.subheader("MVP Limitation")
-    st.info(
-        "This version uses fixed flag counts from the scoring engine. The next iteration can read flags.csv directly."
+    st.subheader("Efficiency Explanation")
+    e1, e2, e3 = st.columns(3)
+    e1.metric("Expected Hours", f"{summary['total_expected_time']:.4f}")
+    e2.metric("Actual Hours", f"{summary['total_actual_time']:.4f}")
+    e3.metric("Efficiency Score", f"{summary['efficiency_score']:.4f}")
+    st.write(
+        "Efficiency Score is calculated as total expected hours divided by total actual "
+        "hours, then capped between 0.5 and 1.25."
     )
+
+    st.subheader("Accuracy Explanation")
+    a1, a2, a3 = st.columns(3)
+    a1.metric("Total Tasks", f"{summary['total_tasks']}")
+    a2.metric("Total Weighted Errors", f"{summary['total_weighted_errors']:.4f}")
+    a3.metric("Accuracy Score", f"{summary['accuracy_score']:.4f}")
+    st.write(
+        "Accuracy Score is calculated as 1 minus total weighted errors divided by total tasks."
+    )
+
+    st.subheader("Contribution Explanation")
+    c1, c2, c3 = st.columns(3)
+    c1.metric("Positive Flags", summary["positive_flags"])
+    c2.metric("Negative Flags", summary["negative_flags"])
+    c3.metric("Contribution Modifier", f"{summary['contribution_modifier']:.4f}")
+    st.write(
+        "Contribution Modifier is calculated from positive and negative flags, then capped "
+        "between 0.9 and 1.1."
+    )
+
+    st.subheader("Score Assembly")
+    st.write(
+        "Final Score is calculated as Output Score × Efficiency Score × Accuracy Score × "
+        "Contribution Modifier."
+    )
+    st.write(f"Output Score: {summary['output_score']:.4f}")
+    st.write(f"Efficiency Score: {summary['efficiency_score']:.4f}")
+    st.write(f"Accuracy Score: {summary['accuracy_score']:.4f}")
+    st.write(f"Contribution Modifier: {summary['contribution_modifier']:.4f}")
+    st.write(f"Final Score: {summary['final_score']:.4f}")
 
 
 def render_admin_controls() -> None:

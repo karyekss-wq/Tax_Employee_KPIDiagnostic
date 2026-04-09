@@ -15,7 +15,7 @@ DATA_DIR = BASE_DIR / "data"
 @dataclass
 class ScoreResults:
     task_metrics: pd.DataFrame
-    summary: Dict[str, float | int | str]
+    summary: Dict[str, float | int | str | Dict[str, str]]
 
 
 def load_csvs() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
@@ -328,6 +328,80 @@ def calculate_final_score(
     return final_score, performance_index
 
 
+def build_diagnostics(
+    efficiency_score: float,
+    accuracy_score: float,
+    contribution_modifier: float,
+    positive_flags: int,
+    negative_flags: int,
+    performance_category: str,
+) -> Dict[str, str]:
+    """
+    Deterministic diagnostic strings derived from computed scoring outputs.
+    """
+    if efficiency_score < 0.95:
+        efficiency_diagnostic = (
+            "Time management concern: actual completion time is materially above expected "
+            "time."
+        )
+    elif efficiency_score <= 1.05:
+        efficiency_diagnostic = "Time performance is near expected levels."
+    else:
+        efficiency_diagnostic = (
+            "Strong time efficiency: actual completion time is better than expected."
+        )
+
+    if accuracy_score < 0.75:
+        accuracy_diagnostic = "Quality risk: error rate is materially affecting performance."
+    elif accuracy_score <= 0.90:
+        accuracy_diagnostic = "Moderate quality performance with some error impact."
+    else:
+        accuracy_diagnostic = "Strong quality performance with low error impact."
+
+    if positive_flags > negative_flags:
+        contribution_diagnostic = (
+            "Constructive contribution pattern: positive flags exceed negative flags."
+        )
+    elif negative_flags > positive_flags:
+        contribution_diagnostic = (
+            "Contribution concern: negative flags exceed positive flags."
+        )
+    else:
+        contribution_diagnostic = (
+            "Neutral contribution pattern: positive and negative flags are balanced."
+        )
+
+    weakest_metric = min(
+        [
+            ("efficiency_score", efficiency_score),
+            ("accuracy_score", accuracy_score),
+            ("contribution_modifier", contribution_modifier),
+        ],
+        key=lambda item: item[1],
+    )[0]
+
+    if performance_category == "Risk" and weakest_metric == "accuracy_score":
+        overall_diagnostic = "Overall performance risk is primarily quality-driven."
+    elif performance_category == "Risk" and weakest_metric == "efficiency_score":
+        overall_diagnostic = "Overall performance risk is primarily speed-driven."
+    elif performance_category == "Risk" and weakest_metric == "contribution_modifier":
+        overall_diagnostic = (
+            "Overall performance risk is primarily behavior/collaboration-driven."
+        )
+    else:
+        overall_diagnostic = (
+            "Overall performance reflects a mixed profile across output quality, speed, "
+            "and contribution."
+        )
+
+    return {
+        "efficiency_diagnostic": efficiency_diagnostic,
+        "accuracy_diagnostic": accuracy_diagnostic,
+        "contribution_diagnostic": contribution_diagnostic,
+        "overall_diagnostic": overall_diagnostic,
+    }
+
+
 def run_scoring() -> ScoreResults:
     """
     Full scoring pipeline for the MVP.
@@ -344,6 +418,7 @@ def run_scoring() -> ScoreResults:
         task_metrics
     )
     accuracy_score, total_tasks = calculate_accuracy_score(task_metrics)
+    total_weighted_errors = float(task_metrics["weighted_errors"].sum())
     contribution_modifier = calculate_contribution_modifier(
         positive_flags=positive_flags,
         negative_flags=negative_flags,
@@ -355,6 +430,14 @@ def run_scoring() -> ScoreResults:
         contribution_modifier=contribution_modifier,
     )
     performance_category = categorize_performance(performance_index)
+    diagnostics = build_diagnostics(
+        efficiency_score=efficiency_score,
+        accuracy_score=accuracy_score,
+        contribution_modifier=contribution_modifier,
+        positive_flags=positive_flags,
+        negative_flags=negative_flags,
+        performance_category=performance_category,
+    )
 
     summary = {
         "intern_id": str(task_metrics["intern_id"].iloc[0]),
@@ -363,6 +446,7 @@ def run_scoring() -> ScoreResults:
         "total_expected_time": round(total_expected_time, 4),
         "total_actual_time": round(total_actual_time, 4),
         "efficiency_score": round(efficiency_score, 4),
+        "total_weighted_errors": round(total_weighted_errors, 4),
         "accuracy_score": round(accuracy_score, 4),
         "contribution_modifier": round(contribution_modifier, 4),
         "performance_index": round(performance_index, 4),
@@ -370,6 +454,7 @@ def run_scoring() -> ScoreResults:
         "performance_category": performance_category,
         "positive_flags": positive_flags,
         "negative_flags": negative_flags,
+        "diagnostics": diagnostics,
     }
 
     return ScoreResults(task_metrics=task_metrics, summary=summary)
@@ -390,6 +475,13 @@ def print_summary(results: ScoreResults) -> None:
     print(f"Category: {summary['performance_category']}")
     print(f"Positive flag count: {summary['positive_flags']}")
     print(f"Negative flag count: {summary['negative_flags']}")
+    print(f"Efficiency Diagnostic: {summary['diagnostics']['efficiency_diagnostic']}")
+    print(f"Accuracy Diagnostic: {summary['diagnostics']['accuracy_diagnostic']}")
+    print(
+        f"Contribution Diagnostic: "
+        f"{summary['diagnostics']['contribution_diagnostic']}"
+    )
+    print(f"Overall Diagnostic: {summary['diagnostics']['overall_diagnostic']}")
 
 
 if __name__ == "__main__":
