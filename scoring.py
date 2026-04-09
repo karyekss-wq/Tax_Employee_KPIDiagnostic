@@ -18,24 +18,26 @@ class ScoreResults:
     summary: Dict[str, float | int | str]
 
 
-def load_csvs() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def load_csvs() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
-    Load the three core CSVs required for scoring.
+    Load the four core CSVs required for scoring.
 
     Returns:
-        class_config, adjustment_config, tasks
+        class_config, adjustment_config, tasks, flags
     """
     class_config = pd.read_csv(CONFIG_DIR / "class_config.csv")
     adjustment_config = pd.read_csv(CONFIG_DIR / "adjustment_config.csv")
     tasks = pd.read_csv(DATA_DIR / "tasks.csv")
+    flags = pd.read_csv(DATA_DIR / "flags.csv")
 
-    return class_config, adjustment_config, tasks
+    return class_config, adjustment_config, tasks, flags
 
 
 def validate_inputs(
     class_config: pd.DataFrame,
     adjustment_config: pd.DataFrame,
     tasks: pd.DataFrame,
+    flags: pd.DataFrame,
 ) -> None:
     """
     Basic schema and integrity checks for MVP safety.
@@ -74,10 +76,12 @@ def validate_inputs(
         "major_errors",
         "completed_at",
     }
+    required_flag_cols = {"task_id", "flag_type", "flag_count"}
 
     missing_class = required_class_cols - set(class_config.columns)
     missing_adjustment = required_adjustment_cols - set(adjustment_config.columns)
     missing_task = required_task_cols - set(tasks.columns)
+    missing_flags = required_flag_cols - set(flags.columns)
 
     if missing_class:
         raise ValueError(f"class_config.csv is missing columns: {sorted(missing_class)}")
@@ -87,6 +91,8 @@ def validate_inputs(
         )
     if missing_task:
         raise ValueError(f"tasks.csv is missing columns: {sorted(missing_task)}")
+    if missing_flags:
+        raise ValueError(f"flags.csv is missing columns: {sorted(missing_flags)}")
 
     if class_config["task_class"].duplicated().any():
         raise ValueError("class_config.csv contains duplicate task_class values.")
@@ -129,6 +135,34 @@ def validate_inputs(
             raise ValueError(
                 f"Adjustment column '{col}' contains non-binary values: {sorted(invalid_values)}"
             )
+
+    normalized_task_ids = set(normalize_task_ids(tasks["task_id"]).dropna())
+    normalized_flag_ids = set(normalize_task_ids(flags["task_id"]).dropna())
+    unknown_flag_tasks = normalized_flag_ids - normalized_task_ids
+    if unknown_flag_tasks:
+        raise ValueError(
+            f"flags.csv contains task_id values not present in tasks.csv: "
+            f"{sorted(unknown_flag_tasks)}"
+        )
+
+
+def normalize_task_ids(task_ids: pd.Series) -> pd.Series:
+    """
+    Normalize task IDs like T01 and T001 to a comparable canonical form.
+    """
+    normalized = task_ids.astype(str).str.strip().str.upper()
+    return normalized.str.replace(r"^([A-Z]+)0+(\d+)$", r"\1\2", regex=True)
+
+
+def prepare_flags(flags: pd.DataFrame) -> pd.DataFrame:
+    """
+    Coerce flag_count to numeric and replace invalid values with 0.
+    """
+    prepared_flags = flags.copy()
+    prepared_flags["flag_count"] = pd.to_numeric(
+        prepared_flags["flag_count"], errors="coerce"
+    ).fillna(0)
+    return prepared_flags
 
 
 def get_active_adjustments(adjustment_config: pd.DataFrame) -> pd.DataFrame:
@@ -239,23 +273,30 @@ def calculate_accuracy_score(task_metrics: pd.DataFrame) -> Tuple[float, int]:
 def calculate_contribution_modifier(
     positive_flags: int,
     negative_flags: int,
-    positive_flag_weight: float = 0.005,
-    negative_flag_weight: float = 0.01,
 ) -> float:
     """
-    Contribution modifier:
-    1 + (positive_flags * weight) - (negative_flags * weight)
-    capped to [0.9, 1.1]
-
-    Flags are passed in as counts. For now, the terminal test can use mock values
-    until flags.csv is wired into the scoring pipeline.
+    Contribution modifier = 1.0 + (0.015 * positive_flags) - (0.02 * negative_flags),
+    capped to [0.9, 1.1].
     """
-    contribution_raw = (
-        1
-        + (positive_flags * positive_flag_weight)
-        - (negative_flags * negative_flag_weight)
-    )
+    contribution_raw = 1.0 + (0.015 * positive_flags) - (0.02 * negative_flags)
     return max(0.9, min(1.1, contribution_raw))
+
+
+def calculate_flag_counts(flags: pd.DataFrame) -> Tuple[int, int]:
+    """
+    Aggregate positive and negative flag counts from flags.csv.
+    """
+    positive_flag_types = {"helped_peer", "proactive_update"}
+    negative_flag_types = {"rework_requested", "blocked_escalated_late"}
+
+    positive_flags = int(
+        flags.loc[flags["flag_type"].isin(positive_flag_types), "flag_count"].sum()
+    )
+    negative_flags = int(
+        flags.loc[flags["flag_type"].isin(negative_flag_types), "flag_count"].sum()
+    )
+
+    return positive_flags, negative_flags
 
 
 def categorize_performance(performance_index: float) -> str:
@@ -287,20 +328,16 @@ def calculate_final_score(
     return final_score, performance_index
 
 
-def run_scoring(
-    positive_flags: int = 15,
-    negative_flags: int = 3,
-) -> ScoreResults:
+def run_scoring() -> ScoreResults:
     """
     Full scoring pipeline for the MVP.
-
-    positive_flags and negative_flags are temporary direct inputs until flags.csv
-    is integrated into the scoring flow.
     """
-    class_config, adjustment_config, tasks = load_csvs()
-    validate_inputs(class_config, adjustment_config, tasks)
+    class_config, adjustment_config, tasks, flags = load_csvs()
+    validate_inputs(class_config, adjustment_config, tasks, flags)
+    flags = prepare_flags(flags)
 
     task_metrics = build_task_metrics(class_config, adjustment_config, tasks)
+    positive_flags, negative_flags = calculate_flag_counts(flags)
 
     output_score = calculate_output_score(task_metrics)
     total_expected_time, total_actual_time, efficiency_score = calculate_efficiency_score(
@@ -344,37 +381,15 @@ def print_summary(results: ScoreResults) -> None:
     """
     summary = results.summary
 
-    print("\n=== INTERN PERFORMANCE SUMMARY ===")
-    print(f"Intern ID:             {summary['intern_id']}")
-    print(f"Total Tasks:           {summary['total_tasks']}")
-    print(f"Output Score:          {summary['output_score']}")
-    print(f"Total Expected Hours:  {summary['total_expected_time']}")
-    print(f"Total Actual Hours:    {summary['total_actual_time']}")
-    print(f"Efficiency Score:      {summary['efficiency_score']}")
-    print(f"Accuracy Score:        {summary['accuracy_score']}")
+    print(f"Output Score: {summary['output_score']}")
+    print(f"Efficiency Score: {summary['efficiency_score']}")
+    print(f"Accuracy Score: {summary['accuracy_score']}")
     print(f"Contribution Modifier: {summary['contribution_modifier']}")
-    print(f"Performance Index:     {summary['performance_index']}")
-    print(f"Final Score:           {summary['final_score']}")
-    print(f"Category:              {summary['performance_category']}")
-    print(f"Positive Flags:        {summary['positive_flags']}")
-    print(f"Negative Flags:        {summary['negative_flags']}")
-
-    print("\n=== TASK METRICS PREVIEW ===")
-    preview_cols = [
-        "task_id",
-        "task_class",
-        "active_adjustments",
-        "base_class_weight",
-        "base_expected_hours",
-        "adjustment_multiplier",
-        "expected_time_hours",
-        "actual_time_hours",
-        "task_output",
-        "weighted_errors",
-        "efficiency_ratio_raw",
-        "efficiency_ratio_capped",
-    ]
-    print(results.task_metrics[preview_cols].round(4).to_string(index=False))
+    print(f"Final Score: {summary['final_score']}")
+    print(f"Performance Index: {summary['performance_index']}")
+    print(f"Category: {summary['performance_category']}")
+    print(f"Positive flag count: {summary['positive_flags']}")
+    print(f"Negative flag count: {summary['negative_flags']}")
 
 
 if __name__ == "__main__":

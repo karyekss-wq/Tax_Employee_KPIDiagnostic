@@ -1,0 +1,13 @@
+task_id,flag_type,flag_count
+T001,helped_peer,1
+T002,helped_peer,1
+T003,proactive_update,1
+T004,blocked_escalated_late,1
+T005,rework_requested,1
+T006,helped_peer,1
+T007,proactive_update,1
+T008,rework_requested,1
+T009,helped_peer,1
+T010,proactive_update,1
+T011,blocked_escalated_late,1
+T012,helped_peer,1
