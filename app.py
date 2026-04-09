@@ -42,15 +42,61 @@ def load_adjustment_config() -> pd.DataFrame:
     return pd.read_csv(CONFIG_DIR / "adjustment_config.csv")
 
 
+def build_class_config_editor_df(class_config: pd.DataFrame) -> pd.DataFrame:
+    """
+    Build the admin editor view for class config with governance context visible.
+    """
+    return class_config[
+        [
+            "task_class",
+            "class_name",
+            "base_class_weight",
+            "base_expected_hours",
+            "is_active",
+            "updated_at",
+        ]
+    ].copy()
+
+
+def build_adjustment_config_editor_df(adjustment_config: pd.DataFrame) -> pd.DataFrame:
+    """
+    Build the admin editor view for adjustment config with governance context visible.
+    """
+    return adjustment_config[
+        [
+            "adjustment_code",
+            "label",
+            "multiplier_add",
+            "min_bound",
+            "max_bound",
+            "is_active",
+            "updated_at",
+        ]
+    ].rename(
+        columns={
+            "adjustment_code": "adjustment_flag",
+            "multiplier_add": "multiplier",
+        }
+    )
+
+
 def validate_class_config_edit(edited_df: pd.DataFrame) -> pd.DataFrame:
     """
     Validate the editable class config slice before persisting.
     """
-    expected_cols = ["task_class", "base_class_weight", "base_expected_hours"]
+    expected_cols = [
+        "task_class",
+        "class_name",
+        "base_class_weight",
+        "base_expected_hours",
+        "is_active",
+        "updated_at",
+    ]
     if edited_df.columns.tolist() != expected_cols:
         raise ValueError(
             "class_config editor columns must remain exactly: "
-            "task_class, base_class_weight, base_expected_hours"
+            "task_class, class_name, base_class_weight, base_expected_hours, "
+            "is_active, updated_at"
         )
 
     validated = edited_df.copy()
@@ -69,15 +115,25 @@ def validate_class_config_edit(edited_df: pd.DataFrame) -> pd.DataFrame:
     return validated
 
 
-def validate_adjustment_config_edit(edited_df: pd.DataFrame) -> pd.DataFrame:
+def validate_adjustment_config_edit(
+    edited_df: pd.DataFrame, adjustment_config: pd.DataFrame
+) -> pd.DataFrame:
     """
     Validate the editable adjustment config slice before persisting.
     """
-    expected_cols = ["adjustment_flag", "multiplier"]
+    expected_cols = [
+        "adjustment_flag",
+        "label",
+        "multiplier",
+        "min_bound",
+        "max_bound",
+        "is_active",
+        "updated_at",
+    ]
     if edited_df.columns.tolist() != expected_cols:
         raise ValueError(
             "adjustment_config editor columns must remain exactly: "
-            "adjustment_flag, multiplier"
+            "adjustment_flag, label, multiplier, min_bound, max_bound, is_active, updated_at"
         )
 
     validated = edited_df.copy()
@@ -92,24 +148,114 @@ def validate_adjustment_config_edit(edited_df: pd.DataFrame) -> pd.DataFrame:
     if (validated["multiplier"] <= 0).any():
         raise ValueError("multiplier must be numeric and greater than 0.")
 
+    bounds = adjustment_config.set_index("adjustment_code")[["min_bound", "max_bound"]]
+    missing_flags = set(validated["adjustment_flag"]) - set(bounds.index)
+    if missing_flags:
+        raise ValueError(
+            f"adjustment_flag values not found in adjustment_config.csv: {sorted(missing_flags)}"
+        )
+
+    for row in validated.itertuples(index=False):
+        min_bound = float(bounds.loc[row.adjustment_flag, "min_bound"])
+        max_bound = float(bounds.loc[row.adjustment_flag, "max_bound"])
+        if row.multiplier < min_bound or row.multiplier > max_bound:
+            raise ValueError(
+                f"Adjustment '{row.adjustment_flag}' multiplier {row.multiplier} "
+                f"is outside the allowed range [{min_bound}, {max_bound}]."
+            )
+
     return validated
 
 
-def save_class_config(edited_df: pd.DataFrame) -> None:
+def get_class_config_changes(
+    current_df: pd.DataFrame, edited_df: pd.DataFrame
+) -> pd.DataFrame:
+    """
+    Return only changed class config rows for review and save decisions.
+    """
+    current = current_df[["task_class", "base_class_weight", "base_expected_hours"]].copy()
+    edited = edited_df[["task_class", "base_class_weight", "base_expected_hours"]].copy()
+
+    current = current.set_index("task_class").sort_index()
+    edited = edited.set_index("task_class").sort_index()
+
+    changed_mask = (current != edited).any(axis=1)
+    changed_ids = changed_mask.index[changed_mask]
+
+    if len(changed_ids) == 0:
+        return pd.DataFrame(
+            columns=[
+                "task_class",
+                "old_base_class_weight",
+                "new_base_class_weight",
+                "old_base_expected_hours",
+                "new_base_expected_hours",
+            ]
+        )
+
+    preview = pd.DataFrame(
+        {
+            "task_class": changed_ids,
+            "old_base_class_weight": current.loc[changed_ids, "base_class_weight"].values,
+            "new_base_class_weight": edited.loc[changed_ids, "base_class_weight"].values,
+            "old_base_expected_hours": current.loc[changed_ids, "base_expected_hours"].values,
+            "new_base_expected_hours": edited.loc[changed_ids, "base_expected_hours"].values,
+        }
+    )
+    return preview.reset_index(drop=True)
+
+
+def get_adjustment_config_changes(
+    current_df: pd.DataFrame, edited_df: pd.DataFrame
+) -> pd.DataFrame:
+    """
+    Return only changed adjustment config rows for review and save decisions.
+    """
+    current = build_adjustment_config_editor_df(current_df)[
+        ["adjustment_flag", "multiplier", "min_bound", "max_bound"]
+    ].copy()
+    edited = edited_df[["adjustment_flag", "multiplier"]].copy()
+
+    current = current.set_index("adjustment_flag").sort_index()
+    edited = edited.set_index("adjustment_flag").sort_index()
+
+    changed_mask = current[["multiplier"]] != edited[["multiplier"]]
+    changed_ids = changed_mask.index[changed_mask["multiplier"]]
+
+    if len(changed_ids) == 0:
+        return pd.DataFrame(
+            columns=[
+                "adjustment_flag",
+                "old_multiplier",
+                "new_multiplier",
+                "min_bound",
+                "max_bound",
+            ]
+        )
+
+    preview = pd.DataFrame(
+        {
+            "adjustment_flag": changed_ids,
+            "old_multiplier": current.loc[changed_ids, "multiplier"].values,
+            "new_multiplier": edited.loc[changed_ids, "multiplier"].values,
+            "min_bound": current.loc[changed_ids, "min_bound"].values,
+            "max_bound": current.loc[changed_ids, "max_bound"].values,
+        }
+    )
+    return preview.reset_index(drop=True)
+
+
+def save_class_config(edited_df: pd.DataFrame) -> bool:
     """
     Persist validated class config edits back to the existing CSV.
     """
     validated = validate_class_config_edit(edited_df)
     class_config = load_class_config()
-    updated = class_config.copy()
+    changes = get_class_config_changes(class_config, validated)
+    if changes.empty:
+        return False
 
-    current_values = class_config[
-        ["task_class", "base_class_weight", "base_expected_hours"]
-    ].reset_index(drop=True)
-    changed_mask = (
-        current_values.set_index("task_class")
-        != validated.set_index("task_class")
-    ).any(axis=1)
+    updated = class_config.copy()
 
     updated = updated.merge(validated, on="task_class", how="left", suffixes=("", "_edited"))
     updated["base_class_weight"] = updated["base_class_weight_edited"]
@@ -118,35 +264,27 @@ def save_class_config(edited_df: pd.DataFrame) -> None:
         columns=["base_class_weight_edited", "base_expected_hours_edited"]
     )
 
-    if "updated_at" in updated.columns and changed_mask.any():
+    if "updated_at" in updated.columns:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         updated.loc[
-            updated["task_class"].isin(changed_mask.index[changed_mask]), "updated_at"
+            updated["task_class"].isin(changes["task_class"]), "updated_at"
         ] = timestamp
 
     updated.to_csv(CONFIG_DIR / "class_config.csv", index=False)
+    return True
 
 
-def save_adjustment_config(edited_df: pd.DataFrame) -> None:
+def save_adjustment_config(edited_df: pd.DataFrame) -> bool:
     """
     Persist validated adjustment config edits back to the existing CSV.
     """
-    validated = validate_adjustment_config_edit(edited_df)
     adjustment_config = load_adjustment_config()
-    updated = adjustment_config.copy()
+    validated = validate_adjustment_config_edit(edited_df, adjustment_config)
+    changes = get_adjustment_config_changes(adjustment_config, validated)
+    if changes.empty:
+        return False
 
-    current_values = adjustment_config[
-        ["adjustment_code", "multiplier_add"]
-    ].rename(
-        columns={
-            "adjustment_code": "adjustment_flag",
-            "multiplier_add": "multiplier",
-        }
-    ).reset_index(drop=True)
-    changed_mask = (
-        current_values.set_index("adjustment_flag")
-        != validated.set_index("adjustment_flag")
-    ).any(axis=1)
+    updated = adjustment_config.copy()
 
     updated = updated.merge(
         validated.rename(
@@ -162,13 +300,14 @@ def save_adjustment_config(edited_df: pd.DataFrame) -> None:
     updated["multiplier_add"] = updated["multiplier_add_edited"]
     updated = updated.drop(columns=["multiplier_add_edited"])
 
-    if "updated_at" in updated.columns and changed_mask.any():
+    if "updated_at" in updated.columns:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         updated.loc[
-            updated["adjustment_code"].isin(changed_mask.index[changed_mask]), "updated_at"
+            updated["adjustment_code"].isin(changes["adjustment_flag"]), "updated_at"
         ] = timestamp
 
     updated.to_csv(CONFIG_DIR / "adjustment_config.csv", index=False)
+    return True
 
 
 def format_task_table(task_metrics: pd.DataFrame) -> pd.DataFrame:
@@ -393,56 +532,87 @@ def render_admin_controls() -> None:
 
     st.subheader("Class Config")
     st.write("Editable fields: base class weight and base expected hours.")
-    class_editor_df = class_config[
-        ["task_class", "base_class_weight", "base_expected_hours"]
-    ].copy()
+    class_editor_df = build_class_config_editor_df(class_config)
     edited_class_df = st.data_editor(
         class_editor_df,
         hide_index=True,
         num_rows="fixed",
-        disabled=["task_class"],
+        disabled=["task_class", "class_name", "is_active", "updated_at"],
         key="class_config_editor",
         use_container_width=True,
     )
+    try:
+        validated_class_df = validate_class_config_edit(edited_class_df)
+        class_changes = get_class_config_changes(class_config, validated_class_df)
+    except ValueError as exc:
+        validated_class_df = None
+        class_changes = pd.DataFrame()
+        st.error(str(exc))
+
+    st.write("Change Preview")
+    if validated_class_df is None:
+        st.info("Fix the class config errors above before saving.")
+    elif class_changes.empty:
+        st.info("No class config changes detected.")
+    else:
+        st.dataframe(class_changes, hide_index=True, use_container_width=True)
+
     if st.button("Save Class Config", use_container_width=True):
-        try:
-            save_class_config(edited_class_df)
-        except ValueError as exc:
-            st.error(str(exc))
+        if validated_class_df is None:
+            st.error("Class config cannot be saved until validation errors are resolved.")
         else:
-            load_results.clear()
-            st.success("class_config.csv saved.")
-            st.rerun()
+            saved = save_class_config(validated_class_df)
+            if not saved:
+                st.info("No class config changes were detected. Nothing was saved.")
+            else:
+                load_results.clear()
+                st.success("class_config.csv saved.")
+                st.rerun()
 
     st.divider()
 
     st.subheader("Adjustment Config")
     st.write("Editable field: multiplier.")
-    adjustment_editor_df = adjustment_config[
-        ["adjustment_code", "multiplier_add"]
-    ].rename(
-        columns={
-            "adjustment_code": "adjustment_flag",
-            "multiplier_add": "multiplier",
-        }
-    )
+    adjustment_editor_df = build_adjustment_config_editor_df(adjustment_config)
     edited_adjustment_df = st.data_editor(
         adjustment_editor_df,
         hide_index=True,
         num_rows="fixed",
-        disabled=["adjustment_flag"],
+        disabled=["adjustment_flag", "label", "min_bound", "max_bound", "is_active", "updated_at"],
         key="adjustment_config_editor",
         use_container_width=True,
     )
+    try:
+        validated_adjustment_df = validate_adjustment_config_edit(
+            edited_adjustment_df, adjustment_config
+        )
+        adjustment_changes = get_adjustment_config_changes(
+            adjustment_config, validated_adjustment_df
+        )
+    except ValueError as exc:
+        validated_adjustment_df = None
+        adjustment_changes = pd.DataFrame()
+        st.error(str(exc))
+
+    st.write("Change Preview")
+    if validated_adjustment_df is None:
+        st.info("Fix the adjustment config errors above before saving.")
+    elif adjustment_changes.empty:
+        st.info("No adjustment config changes detected.")
+    else:
+        st.dataframe(adjustment_changes, hide_index=True, use_container_width=True)
+
     if st.button("Save Adjustment Config", use_container_width=True):
-        try:
-            save_adjustment_config(edited_adjustment_df)
-        except ValueError as exc:
-            st.error(str(exc))
+        if validated_adjustment_df is None:
+            st.error("Adjustment config cannot be saved until validation errors are resolved.")
         else:
-            load_results.clear()
-            st.success("adjustment_config.csv saved.")
-            st.rerun()
+            saved = save_adjustment_config(validated_adjustment_df)
+            if not saved:
+                st.info("No adjustment config changes were detected. Nothing was saved.")
+            else:
+                load_results.clear()
+                st.success("adjustment_config.csv saved.")
+                st.rerun()
 
 
 def main() -> None:
