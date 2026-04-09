@@ -1,9 +1,16 @@
 from __future__ import annotations
 
+from datetime import datetime
+from pathlib import Path
+
 import pandas as pd
 import streamlit as st
 
 from scoring import run_scoring
+
+
+BASE_DIR = Path(__file__).resolve().parent
+CONFIG_DIR = BASE_DIR / "config"
 
 
 st.set_page_config(
@@ -19,6 +26,149 @@ def load_results():
     Load scored MVP results once per session unless files change.
     """
     return run_scoring()
+
+
+def load_class_config() -> pd.DataFrame:
+    """
+    Load the full class config from disk.
+    """
+    return pd.read_csv(CONFIG_DIR / "class_config.csv")
+
+
+def load_adjustment_config() -> pd.DataFrame:
+    """
+    Load the full adjustment config from disk.
+    """
+    return pd.read_csv(CONFIG_DIR / "adjustment_config.csv")
+
+
+def validate_class_config_edit(edited_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Validate the editable class config slice before persisting.
+    """
+    expected_cols = ["task_class", "base_class_weight", "base_expected_hours"]
+    if edited_df.columns.tolist() != expected_cols:
+        raise ValueError(
+            "class_config editor columns must remain exactly: "
+            "task_class, base_class_weight, base_expected_hours"
+        )
+
+    validated = edited_df.copy()
+    validated["task_class"] = validated["task_class"].astype(str).str.strip()
+
+    if (validated["task_class"] == "").any():
+        raise ValueError("task_class cannot be blank.")
+    if validated["task_class"].duplicated().any():
+        raise ValueError("task_class values must be unique.")
+
+    for col in ["base_class_weight", "base_expected_hours"]:
+        validated[col] = pd.to_numeric(validated[col], errors="raise")
+        if (validated[col] <= 0).any():
+            raise ValueError(f"{col} must be numeric and greater than 0.")
+
+    return validated
+
+
+def validate_adjustment_config_edit(edited_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Validate the editable adjustment config slice before persisting.
+    """
+    expected_cols = ["adjustment_flag", "multiplier"]
+    if edited_df.columns.tolist() != expected_cols:
+        raise ValueError(
+            "adjustment_config editor columns must remain exactly: "
+            "adjustment_flag, multiplier"
+        )
+
+    validated = edited_df.copy()
+    validated["adjustment_flag"] = validated["adjustment_flag"].astype(str).str.strip()
+
+    if (validated["adjustment_flag"] == "").any():
+        raise ValueError("adjustment_flag cannot be blank.")
+    if validated["adjustment_flag"].duplicated().any():
+        raise ValueError("adjustment_flag values must be unique.")
+
+    validated["multiplier"] = pd.to_numeric(validated["multiplier"], errors="raise")
+    if (validated["multiplier"] <= 0).any():
+        raise ValueError("multiplier must be numeric and greater than 0.")
+
+    return validated
+
+
+def save_class_config(edited_df: pd.DataFrame) -> None:
+    """
+    Persist validated class config edits back to the existing CSV.
+    """
+    validated = validate_class_config_edit(edited_df)
+    class_config = load_class_config()
+    updated = class_config.copy()
+
+    current_values = class_config[
+        ["task_class", "base_class_weight", "base_expected_hours"]
+    ].reset_index(drop=True)
+    changed_mask = (
+        current_values.set_index("task_class")
+        != validated.set_index("task_class")
+    ).any(axis=1)
+
+    updated = updated.merge(validated, on="task_class", how="left", suffixes=("", "_edited"))
+    updated["base_class_weight"] = updated["base_class_weight_edited"]
+    updated["base_expected_hours"] = updated["base_expected_hours_edited"]
+    updated = updated.drop(
+        columns=["base_class_weight_edited", "base_expected_hours_edited"]
+    )
+
+    if "updated_at" in updated.columns and changed_mask.any():
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        updated.loc[
+            updated["task_class"].isin(changed_mask.index[changed_mask]), "updated_at"
+        ] = timestamp
+
+    updated.to_csv(CONFIG_DIR / "class_config.csv", index=False)
+
+
+def save_adjustment_config(edited_df: pd.DataFrame) -> None:
+    """
+    Persist validated adjustment config edits back to the existing CSV.
+    """
+    validated = validate_adjustment_config_edit(edited_df)
+    adjustment_config = load_adjustment_config()
+    updated = adjustment_config.copy()
+
+    current_values = adjustment_config[
+        ["adjustment_code", "multiplier_add"]
+    ].rename(
+        columns={
+            "adjustment_code": "adjustment_flag",
+            "multiplier_add": "multiplier",
+        }
+    ).reset_index(drop=True)
+    changed_mask = (
+        current_values.set_index("adjustment_flag")
+        != validated.set_index("adjustment_flag")
+    ).any(axis=1)
+
+    updated = updated.merge(
+        validated.rename(
+            columns={
+                "adjustment_flag": "adjustment_code",
+                "multiplier": "multiplier_add",
+            }
+        ),
+        on="adjustment_code",
+        how="left",
+        suffixes=("", "_edited"),
+    )
+    updated["multiplier_add"] = updated["multiplier_add_edited"]
+    updated = updated.drop(columns=["multiplier_add_edited"])
+
+    if "updated_at" in updated.columns and changed_mask.any():
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        updated.loc[
+            updated["adjustment_code"].isin(changed_mask.index[changed_mask]), "updated_at"
+        ] = timestamp
+
+    updated.to_csv(CONFIG_DIR / "adjustment_config.csv", index=False)
 
 
 def format_task_table(task_metrics: pd.DataFrame) -> pd.DataFrame:
@@ -234,17 +384,65 @@ def render_flags_diagnostics(summary: dict, task_metrics: pd.DataFrame) -> None:
 
 def render_admin_controls() -> None:
     st.header("Admin Controls")
-    st.warning(
-        "This MVP view is currently informational only. Editable controls should be connected "
-        "to class_config.csv and adjustment_config.csv in the next iteration."
+    st.caption(
+        "Edit class assumptions and adjustment multipliers directly in the source CSVs."
     )
 
-    st.write("Planned editable controls:")
-    st.write("- Base class weights")
-    st.write("- Base expected hours")
-    st.write("- Adjustment multipliers")
-    st.write("- Contribution weights")
-    st.write("- Category thresholds")
+    class_config = load_class_config()
+    adjustment_config = load_adjustment_config()
+
+    st.subheader("Class Config")
+    st.write("Editable fields: base class weight and base expected hours.")
+    class_editor_df = class_config[
+        ["task_class", "base_class_weight", "base_expected_hours"]
+    ].copy()
+    edited_class_df = st.data_editor(
+        class_editor_df,
+        hide_index=True,
+        num_rows="fixed",
+        disabled=["task_class"],
+        key="class_config_editor",
+        use_container_width=True,
+    )
+    if st.button("Save Class Config", use_container_width=True):
+        try:
+            save_class_config(edited_class_df)
+        except ValueError as exc:
+            st.error(str(exc))
+        else:
+            load_results.clear()
+            st.success("class_config.csv saved.")
+            st.rerun()
+
+    st.divider()
+
+    st.subheader("Adjustment Config")
+    st.write("Editable field: multiplier.")
+    adjustment_editor_df = adjustment_config[
+        ["adjustment_code", "multiplier_add"]
+    ].rename(
+        columns={
+            "adjustment_code": "adjustment_flag",
+            "multiplier_add": "multiplier",
+        }
+    )
+    edited_adjustment_df = st.data_editor(
+        adjustment_editor_df,
+        hide_index=True,
+        num_rows="fixed",
+        disabled=["adjustment_flag"],
+        key="adjustment_config_editor",
+        use_container_width=True,
+    )
+    if st.button("Save Adjustment Config", use_container_width=True):
+        try:
+            save_adjustment_config(edited_adjustment_df)
+        except ValueError as exc:
+            st.error(str(exc))
+        else:
+            load_results.clear()
+            st.success("adjustment_config.csv saved.")
+            st.rerun()
 
 
 def main() -> None:
