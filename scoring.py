@@ -41,7 +41,8 @@ def validate_inputs(
     flags: pd.DataFrame,
 ) -> None:
     """
-    Basic schema and integrity checks for MVP safety.
+    Strict schema, domain, and relational validation.
+    Any violation blocks scoring with a ValueError.
     """
     required_class_cols = {
         "task_class",
@@ -60,7 +61,7 @@ def validate_inputs(
         "is_active",
         "updated_at",
     }
-    required_task_cols = {
+    required_task_cols = [
         "task_id",
         "intern_id",
         "period",
@@ -76,13 +77,76 @@ def validate_inputs(
         "minor_errors",
         "major_errors",
         "completed_at",
-    }
-    required_flag_cols = {"task_id", "flag_type", "flag_count"}
+    ]
+    required_flag_cols = ["task_id", "flag_type", "flag_count"]
+
+    def fail(file_name: str, message: str) -> None:
+        raise ValueError(f"{file_name}: {message}")
+
+    def row_fail(file_name: str, row_idx: int, message: str) -> None:
+        # Human-readable 1-based data row index
+        raise ValueError(f"{file_name} row {row_idx + 1}: {message}")
+
+    def validate_exact_columns(
+        df: pd.DataFrame, expected: list[str], file_name: str
+    ) -> None:
+        actual = list(df.columns)
+        missing = [col for col in expected if col not in actual]
+        unexpected = [col for col in actual if col not in expected]
+        if missing or unexpected:
+            fail(
+                file_name,
+                f"schema mismatch. missing={missing or []}, unexpected={unexpected or []}",
+            )
+
+    def validate_required_text(
+        df: pd.DataFrame, file_name: str, column: str, allow_whitespace: bool
+    ) -> None:
+        for idx, value in df[column].items():
+            if pd.isna(value):
+                row_fail(file_name, idx, f"{column} is blank")
+            if not isinstance(value, str):
+                value = str(value)
+            if value == "":
+                row_fail(file_name, idx, f"{column} is blank")
+            if not allow_whitespace and value.strip() == "":
+                row_fail(file_name, idx, f"{column} is blank")
+
+    def parse_numeric_column(df: pd.DataFrame, file_name: str, column: str) -> pd.Series:
+        try:
+            return pd.to_numeric(df[column], errors="raise")
+        except Exception:
+            for idx, value in df[column].items():
+                try:
+                    pd.to_numeric(pd.Series([value]), errors="raise")
+                except Exception:
+                    row_fail(file_name, idx, f"{column} must be numeric")
+            fail(file_name, f"{column} must be numeric")
+
+    def validate_non_negative_whole_number_column(
+        values: pd.Series, file_name: str, column: str
+    ) -> None:
+        for idx, value in values.items():
+            if value < 0 or not float(value).is_integer():
+                row_fail(
+                    file_name,
+                    int(idx),
+                    f"{column} must be a non-negative whole number",
+                )
+
+    def parse_datetime_column(df: pd.DataFrame, file_name: str, column: str) -> pd.Series:
+        try:
+            return pd.to_datetime(df[column], errors="raise")
+        except Exception:
+            for idx, value in df[column].items():
+                try:
+                    pd.to_datetime(pd.Series([value]), errors="raise")
+                except Exception:
+                    row_fail(file_name, idx, f"{column} must be a valid datetime")
+            fail(file_name, f"{column} must be a valid datetime")
 
     missing_class = required_class_cols - set(class_config.columns)
     missing_adjustment = required_adjustment_cols - set(adjustment_config.columns)
-    missing_task = required_task_cols - set(tasks.columns)
-    missing_flags = required_flag_cols - set(flags.columns)
 
     if missing_class:
         raise ValueError(f"class_config.csv is missing columns: {sorted(missing_class)}")
@@ -90,10 +154,13 @@ def validate_inputs(
         raise ValueError(
             f"adjustment_config.csv is missing columns: {sorted(missing_adjustment)}"
         )
-    if missing_task:
-        raise ValueError(f"tasks.csv is missing columns: {sorted(missing_task)}")
-    if missing_flags:
-        raise ValueError(f"flags.csv is missing columns: {sorted(missing_flags)}")
+    validate_exact_columns(tasks, required_task_cols, "tasks.csv")
+    validate_exact_columns(flags, required_flag_cols, "flags.csv")
+
+    validate_required_text(tasks, "tasks.csv", "task_id", allow_whitespace=False)
+    validate_required_text(tasks, "tasks.csv", "intern_id", allow_whitespace=False)
+    validate_required_text(flags, "flags.csv", "task_id", allow_whitespace=False)
+    validate_required_text(flags, "flags.csv", "flag_type", allow_whitespace=False)
 
     if class_config["task_class"].duplicated().any():
         raise ValueError("class_config.csv contains duplicate task_class values.")
@@ -101,62 +168,92 @@ def validate_inputs(
     if adjustment_config["adjustment_code"].duplicated().any():
         raise ValueError("adjustment_config.csv contains duplicate adjustment_code values.")
 
-    if tasks["task_id"].duplicated().any():
-        raise ValueError("tasks.csv contains duplicate task_id values.")
+    duplicate_task_ids = tasks["task_id"].duplicated(keep=False)
+    if duplicate_task_ids.any():
+        duplicate_idx = int(tasks.index[duplicate_task_ids][0])
+        duplicate_value = tasks.loc[duplicate_idx, "task_id"]
+        row_fail(
+            "tasks.csv",
+            duplicate_idx,
+            f"task_id '{duplicate_value}' is duplicated",
+        )
+
+    duplicate_flag_rows = flags.duplicated(keep=False)
+    if duplicate_flag_rows.any():
+        duplicate_idx = int(flags.index[duplicate_flag_rows][0])
+        row_fail("flags.csv", duplicate_idx, "duplicate row detected")
 
     active_classes = set(class_config.loc[class_config["is_active"] == 1, "task_class"])
-    unknown_classes = set(tasks["task_class"]) - active_classes
-    if unknown_classes:
-        raise ValueError(
-            f"tasks.csv contains task_class values not active in class_config.csv: "
-            f"{sorted(unknown_classes)}"
-        )
-
-    # Ensure all active adjustment codes exist as binary task columns.
-    active_adjustments = adjustment_config.loc[
-        adjustment_config["is_active"] == 1, "adjustment_code"
-    ].tolist()
-
-    missing_adjustment_columns = [col for col in active_adjustments if col not in tasks.columns]
-    if missing_adjustment_columns:
-        raise ValueError(
-            f"tasks.csv is missing adjustment columns: {missing_adjustment_columns}"
-        )
-
-    # MVP sanity checks
-    if (tasks["actual_time_hours"] <= 0).any():
-        raise ValueError("All actual_time_hours values must be greater than 0.")
-
-    if (tasks["minor_errors"] < 0).any() or (tasks["major_errors"] < 0).any():
-        raise ValueError("Error counts cannot be negative.")
-
-    numeric_flag_counts = pd.to_numeric(flags["flag_count"], errors="raise")
-    if (numeric_flag_counts < 0).any():
-        raise ValueError("flag_count values cannot be negative.")
-
-    for col in active_adjustments:
-        invalid_values = set(tasks[col].dropna().unique()) - {0, 1}
-        if invalid_values:
-            raise ValueError(
-                f"Adjustment column '{col}' contains non-binary values: {sorted(invalid_values)}"
+    for idx, value in tasks["task_class"].items():
+        if value not in active_classes:
+            row_fail(
+                "tasks.csv",
+                idx,
+                f"task_class '{value}' not found in active class_config.csv",
             )
 
-    normalized_task_ids = set(normalize_task_ids(tasks["task_id"]).dropna())
-    normalized_flag_ids = set(normalize_task_ids(flags["task_id"]).dropna())
-    unknown_flag_tasks = normalized_flag_ids - normalized_task_ids
-    if unknown_flag_tasks:
-        raise ValueError(
-            f"flags.csv contains task_id values not present in tasks.csv: "
-            f"{sorted(unknown_flag_tasks)}"
-        )
+    active_adjustment_codes = (
+        adjustment_config.loc[adjustment_config["is_active"] == 1, "adjustment_code"]
+        .astype(str)
+        .tolist()
+    )
+    for col in active_adjustment_codes:
+        if col not in tasks.columns:
+            fail("tasks.csv", f"missing required adjustment column '{col}'")
+        invalid_values = set(tasks[col].dropna().unique()) - {0, 1}
+        if invalid_values:
+            bad_idx = int(tasks.index[tasks[col].isin(list(invalid_values))][0])
+            bad_value = tasks.loc[bad_idx, col]
+            row_fail(
+                "tasks.csv",
+                bad_idx,
+                f"{col} must contain only 0 or 1 (found {bad_value})",
+            )
 
+    actual_time_hours = parse_numeric_column(tasks, "tasks.csv", "actual_time_hours")
+    minor_errors = parse_numeric_column(tasks, "tasks.csv", "minor_errors")
+    major_errors = parse_numeric_column(tasks, "tasks.csv", "major_errors")
+    flag_count = parse_numeric_column(flags, "flags.csv", "flag_count")
 
-def normalize_task_ids(task_ids: pd.Series) -> pd.Series:
-    """
-    Normalize task IDs like T01 and T001 to a comparable canonical form.
-    """
-    normalized = task_ids.astype(str).str.strip().str.upper()
-    return normalized.str.replace(r"^([A-Z]+)0+(\d+)$", r"\1\2", regex=True)
+    for idx, value in actual_time_hours.items():
+        if value <= 0:
+            row_fail("tasks.csv", int(idx), "actual_time_hours must be > 0")
+    validate_non_negative_whole_number_column(
+        minor_errors, "tasks.csv", "minor_errors"
+    )
+    validate_non_negative_whole_number_column(
+        major_errors, "tasks.csv", "major_errors"
+    )
+    validate_non_negative_whole_number_column(
+        flag_count, "flags.csv", "flag_count"
+    )
+
+    timer_start = parse_datetime_column(tasks, "tasks.csv", "timer_start")
+    timer_end = parse_datetime_column(tasks, "tasks.csv", "timer_end")
+    parse_datetime_column(tasks, "tasks.csv", "completed_at")
+
+    for idx in tasks.index:
+        if timer_end.loc[idx] < timer_start.loc[idx]:
+            row_fail("tasks.csv", int(idx), "timer_end must be >= timer_start")
+
+    allowed_flag_types = {
+        "helped_peer",
+        "proactive_update",
+        "rework_requested",
+        "blocked_escalated_late",
+    }
+    for idx, value in flags["flag_type"].items():
+        if value not in allowed_flag_types:
+            row_fail("flags.csv", int(idx), f"unknown flag_type '{value}'")
+
+    task_ids = set(tasks["task_id"])
+    for idx, value in flags["task_id"].items():
+        if value not in task_ids:
+            row_fail(
+                "flags.csv",
+                int(idx),
+                f"task_id '{value}' not found in tasks.csv",
+            )
 
 
 def prepare_flags(flags: pd.DataFrame) -> pd.DataFrame:
