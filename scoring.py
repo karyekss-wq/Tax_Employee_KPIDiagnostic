@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import Any, Dict, Iterable, Tuple
 
 import pandas as pd
 
@@ -16,6 +16,7 @@ DATA_DIR = BASE_DIR / "data"
 class ScoreResults:
     task_metrics: pd.DataFrame
     summary: Dict[str, float | int | str | Dict[str, str]]
+    attribution: Dict[str, Any]
 
 
 def load_csvs() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
@@ -129,6 +130,10 @@ def validate_inputs(
     if (tasks["minor_errors"] < 0).any() or (tasks["major_errors"] < 0).any():
         raise ValueError("Error counts cannot be negative.")
 
+    numeric_flag_counts = pd.to_numeric(flags["flag_count"], errors="raise")
+    if (numeric_flag_counts < 0).any():
+        raise ValueError("flag_count values cannot be negative.")
+
     for col in active_adjustments:
         invalid_values = set(tasks[col].dropna().unique()) - {0, 1}
         if invalid_values:
@@ -156,12 +161,10 @@ def normalize_task_ids(task_ids: pd.Series) -> pd.Series:
 
 def prepare_flags(flags: pd.DataFrame) -> pd.DataFrame:
     """
-    Coerce flag_count to numeric and replace invalid values with 0.
+    Coerce flag_count to numeric after validation has rejected malformed values.
     """
     prepared_flags = flags.copy()
-    prepared_flags["flag_count"] = pd.to_numeric(
-        prepared_flags["flag_count"], errors="coerce"
-    ).fillna(0)
+    prepared_flags["flag_count"] = pd.to_numeric(prepared_flags["flag_count"], errors="raise")
     return prepared_flags
 
 
@@ -297,6 +300,455 @@ def calculate_flag_counts(flags: pd.DataFrame) -> Tuple[int, int]:
     )
 
     return positive_flags, negative_flags
+
+
+def validate_attribution_columns(df: pd.DataFrame, required_cols: Iterable[str], name: str) -> None:
+    """
+    Fail clearly if an attribution helper is called without its required columns.
+    """
+    missing_cols = set(required_cols) - set(df.columns)
+    if missing_cols:
+        raise ValueError(f"{name} is missing attribution columns: {sorted(missing_cols)}")
+
+
+def records_from_df(df: pd.DataFrame) -> list[dict[str, Any]]:
+    """
+    Convert a dataframe to plain records without mutating caller-owned data.
+    """
+    return df.to_dict(orient="records")
+
+
+def build_output_attribution(
+    task_metrics: pd.DataFrame,
+    adjustment_config: pd.DataFrame,
+    output_score: float,
+) -> Dict[str, Any]:
+    """
+    Explain output score by task, task class, and active adjustment code.
+    """
+    validate_attribution_columns(
+        task_metrics,
+        [
+            "task_id",
+            "task_class",
+            "class_name",
+            "base_class_weight",
+            "adjustment_multiplier",
+            "task_output",
+        ],
+        "task_metrics",
+    )
+    active_adjustments = get_active_adjustments(adjustment_config)
+    adjustment_codes = active_adjustments["adjustment_code"].tolist()
+    validate_attribution_columns(task_metrics, adjustment_codes, "task_metrics")
+
+    tasks = task_metrics.copy()
+    tasks["output_share"] = (
+        tasks["task_output"] / output_score if output_score else 0.0
+    )
+
+    by_task = tasks[
+        [
+            "task_id",
+            "task_class",
+            "class_name",
+            "base_class_weight",
+            "adjustment_multiplier",
+            "task_output",
+            "output_share",
+        ]
+    ].sort_values(["task_output", "task_id"], ascending=[False, True], kind="mergesort")
+
+    by_class = (
+        tasks.groupby(["task_class", "class_name"], as_index=False, sort=False)
+        .agg(
+            task_count=("task_id", "count"),
+            output_contribution=("task_output", "sum"),
+        )
+    )
+    by_class["output_share"] = (
+        by_class["output_contribution"] / output_score if output_score else 0.0
+    )
+    by_class = by_class.sort_values(
+        ["output_contribution", "task_class"], ascending=[False, True], kind="mergesort"
+    )
+
+    adjustment_rows = []
+    for row in active_adjustments.sort_values("adjustment_code", kind="mergesort").itertuples(
+        index=False
+    ):
+        flagged = tasks[row.adjustment_code] == 1
+        output_effect = float(
+            (tasks.loc[flagged, "base_class_weight"] * row.multiplier_add).sum()
+        )
+        adjustment_rows.append(
+            {
+                "adjustment_code": row.adjustment_code,
+                "label": row.label,
+                "task_count": int(flagged.sum()),
+                "multiplier_add": float(row.multiplier_add),
+                "output_effect": output_effect,
+                "output_effect_share": output_effect / output_score if output_score else 0.0,
+            }
+        )
+
+    base_output_without_adjustments = float(tasks["base_class_weight"].sum())
+    adjustment_output_effect = float(
+        sum(row["output_effect"] for row in adjustment_rows)
+    )
+
+    return {
+        "by_task": records_from_df(by_task),
+        "by_class": records_from_df(by_class),
+        "by_adjustment": adjustment_rows,
+        "reconciliation": {
+            "base_output_without_adjustments": base_output_without_adjustments,
+            "adjustment_output_effect": adjustment_output_effect,
+            "total_output": float(output_score),
+        },
+    }
+
+
+def build_efficiency_attribution(task_metrics: pd.DataFrame) -> Dict[str, Any]:
+    """
+    Explain efficiency by task-level expected hours, actual hours, and deltas.
+    """
+    validate_attribution_columns(
+        task_metrics,
+        ["task_id", "task_class", "expected_time_hours", "actual_time_hours"],
+        "task_metrics",
+    )
+
+    tasks = task_metrics[
+        ["task_id", "task_class", "expected_time_hours", "actual_time_hours"]
+    ].copy()
+    tasks["time_delta_hours"] = tasks["actual_time_hours"] - tasks["expected_time_hours"]
+    tasks["overrun_hours"] = tasks["time_delta_hours"].clip(lower=0)
+    tasks["underrun_hours"] = (-tasks["time_delta_hours"]).clip(lower=0)
+
+    total_overrun_hours = float(tasks["overrun_hours"].sum())
+    tasks["inefficiency_share"] = (
+        tasks["overrun_hours"] / total_overrun_hours if total_overrun_hours else 0.0
+    )
+
+    by_task = tasks.sort_values(
+        ["time_delta_hours", "task_id"], ascending=[False, True], kind="mergesort"
+    )
+    largest_overruns = by_task[by_task["time_delta_hours"] > 0].head(5)
+    largest_underruns = tasks[tasks["time_delta_hours"] < 0].sort_values(
+        ["time_delta_hours", "task_id"], ascending=[True, True], kind="mergesort"
+    ).head(5)
+
+    return {
+        "by_task": records_from_df(by_task),
+        "largest_overruns": records_from_df(largest_overruns),
+        "largest_underruns": records_from_df(largest_underruns),
+        "reconciliation": {
+            "total_expected_time": float(tasks["expected_time_hours"].sum()),
+            "total_actual_time": float(tasks["actual_time_hours"].sum()),
+            "total_time_delta_hours": float(tasks["time_delta_hours"].sum()),
+            "total_overrun_hours": total_overrun_hours,
+        },
+    }
+
+
+def build_accuracy_attribution(task_metrics: pd.DataFrame) -> Dict[str, Any]:
+    """
+    Explain accuracy loss by task and by existing error severity fields.
+    """
+    validate_attribution_columns(
+        task_metrics,
+        ["task_id", "task_class", "minor_errors", "major_errors", "weighted_errors"],
+        "task_metrics",
+    )
+
+    tasks = task_metrics[
+        ["task_id", "task_class", "minor_errors", "major_errors", "weighted_errors"]
+    ].copy()
+    tasks["minor_error_impact"] = tasks["minor_errors"] * 0.5
+    tasks["major_error_impact"] = tasks["major_errors"] * 1.5
+    tasks["total_error_count"] = tasks["minor_errors"] + tasks["major_errors"]
+
+    total_weighted_errors = float(tasks["weighted_errors"].sum())
+    total_tasks = int(len(tasks))
+    tasks["accuracy_loss_share"] = (
+        tasks["weighted_errors"] / total_weighted_errors if total_weighted_errors else 0.0
+    )
+    tasks["accuracy_score_impact"] = (
+        tasks["weighted_errors"] / total_tasks if total_tasks else 0.0
+    )
+
+    by_task = tasks.sort_values(
+        ["weighted_errors", "task_id"], ascending=[False, True], kind="mergesort"
+    )
+    top_error_drivers = by_task[by_task["weighted_errors"] > 0].head(5)
+
+    severity_breakdown = [
+        {
+            "severity": "minor",
+            "error_count": int(tasks["minor_errors"].sum()),
+            "weighted_error_impact": float(tasks["minor_error_impact"].sum()),
+            "accuracy_score_impact": (
+                float(tasks["minor_error_impact"].sum()) / total_tasks
+                if total_tasks
+                else 0.0
+            ),
+        },
+        {
+            "severity": "major",
+            "error_count": int(tasks["major_errors"].sum()),
+            "weighted_error_impact": float(tasks["major_error_impact"].sum()),
+            "accuracy_score_impact": (
+                float(tasks["major_error_impact"].sum()) / total_tasks
+                if total_tasks
+                else 0.0
+            ),
+        },
+    ]
+
+    return {
+        "by_task": records_from_df(by_task),
+        "top_error_drivers": records_from_df(top_error_drivers),
+        "by_severity": severity_breakdown,
+        "reconciliation": {
+            "total_weighted_errors": total_weighted_errors,
+            "total_tasks": total_tasks,
+            "accuracy_loss": total_weighted_errors / total_tasks if total_tasks else 0.0,
+        },
+    }
+
+
+def build_contribution_attribution(
+    flags: pd.DataFrame,
+    positive_flags: int,
+    negative_flags: int,
+    contribution_modifier: float,
+) -> Dict[str, Any]:
+    """
+    Explain contribution modifier by flag type using the locked formula.
+    """
+    validate_attribution_columns(flags, ["flag_type", "flag_count"], "flags")
+    positive_flag_types = {"helped_peer", "proactive_update"}
+    negative_flag_types = {"rework_requested", "blocked_escalated_late"}
+
+    grouped = (
+        flags.copy()
+        .groupby("flag_type", as_index=False, sort=False)
+        .agg(flag_count=("flag_count", "sum"))
+    )
+
+    positive_by_type = grouped[grouped["flag_type"].isin(positive_flag_types)].copy()
+    positive_by_type["modifier_effect"] = positive_by_type["flag_count"] * 0.015
+    positive_by_type = positive_by_type.sort_values(
+        ["modifier_effect", "flag_type"], ascending=[False, True], kind="mergesort"
+    )
+
+    negative_by_type = grouped[grouped["flag_type"].isin(negative_flag_types)].copy()
+    negative_by_type["modifier_effect"] = negative_by_type["flag_count"] * -0.02
+    negative_by_type["absolute_modifier_effect"] = negative_by_type[
+        "modifier_effect"
+    ].abs()
+    negative_by_type = negative_by_type.sort_values(
+        ["absolute_modifier_effect", "flag_type"],
+        ascending=[False, True],
+        kind="mergesort",
+    ).drop(columns=["absolute_modifier_effect"])
+
+    raw_positive_effect = 0.015 * positive_flags
+    raw_negative_effect = -0.02 * negative_flags
+    raw_modifier_before_cap = 1.0 + raw_positive_effect + raw_negative_effect
+
+    return {
+        "positive_by_type": records_from_df(positive_by_type),
+        "negative_by_type": records_from_df(negative_by_type),
+        "raw_positive_effect": float(raw_positive_effect),
+        "raw_negative_effect": float(raw_negative_effect),
+        "raw_modifier_before_cap": float(raw_modifier_before_cap),
+        "final_modifier_after_cap": float(contribution_modifier),
+        "cap_applied": bool(raw_modifier_before_cap != contribution_modifier),
+        "reconciliation": {
+            "positive_flags": int(positive_flags),
+            "negative_flags": int(negative_flags),
+        },
+    }
+
+
+def build_overall_attribution(
+    output_attribution: Dict[str, Any],
+    efficiency_attribution: Dict[str, Any],
+    accuracy_attribution: Dict[str, Any],
+    contribution_attribution: Dict[str, Any],
+    summary_values: Dict[str, Any],
+) -> Dict[str, Any]:
+    """
+    Build deterministic plain-language attribution from computed values only.
+    """
+    by_task_output = output_attribution["by_task"]
+    overruns = efficiency_attribution["largest_overruns"]
+    underruns = efficiency_attribution["largest_underruns"]
+    error_drivers = accuracy_attribution["top_error_drivers"]
+
+    top_output_task = by_task_output[0] if by_task_output else None
+    top_underrun_task = underruns[0] if underruns else None
+    top_overrun_task = overruns[0] if overruns else None
+    top_error_task = error_drivers[0] if error_drivers else None
+
+    positive_candidates = []
+    if top_output_task:
+        positive_candidates.append(
+            {
+                "driver": "highest_output_task",
+                "label": top_output_task["task_id"],
+                "value": float(top_output_task["task_output"]),
+                "detail": (
+                    f"{top_output_task['task_id']} contributed "
+                    f"{top_output_task['task_output']} output points."
+                ),
+            }
+        )
+    if top_underrun_task:
+        positive_candidates.append(
+            {
+                "driver": "largest_time_underrun",
+                "label": top_underrun_task["task_id"],
+                "value": float(top_underrun_task["underrun_hours"]),
+                "detail": (
+                    f"{top_underrun_task['task_id']} finished "
+                    f"{top_underrun_task['underrun_hours']} hours under expected time."
+                ),
+            }
+        )
+    if contribution_attribution["raw_positive_effect"] > 0:
+        positive_candidates.append(
+            {
+                "driver": "positive_flags",
+                "label": "positive flags",
+                "value": float(contribution_attribution["raw_positive_effect"]),
+                "detail": (
+                    f"Positive flags increased the raw contribution modifier by "
+                    f"{contribution_attribution['raw_positive_effect']}."
+                ),
+            }
+        )
+
+    negative_candidates = []
+    if top_error_task:
+        negative_candidates.append(
+            {
+                "driver": "largest_error_driver",
+                "label": top_error_task["task_id"],
+                "value": float(top_error_task["weighted_errors"]),
+                "detail": (
+                    f"{top_error_task['task_id']} added "
+                    f"{top_error_task['weighted_errors']} weighted errors."
+                ),
+            }
+        )
+    if top_overrun_task:
+        negative_candidates.append(
+            {
+                "driver": "largest_time_overrun",
+                "label": top_overrun_task["task_id"],
+                "value": float(top_overrun_task["overrun_hours"]),
+                "detail": (
+                    f"{top_overrun_task['task_id']} ran "
+                    f"{top_overrun_task['overrun_hours']} hours over expected time."
+                ),
+            }
+        )
+    if contribution_attribution["raw_negative_effect"] < 0:
+        negative_candidates.append(
+            {
+                "driver": "negative_flags",
+                "label": "negative flags",
+                "value": abs(float(contribution_attribution["raw_negative_effect"])),
+                "detail": (
+                    f"Negative flags decreased the raw contribution modifier by "
+                    f"{abs(contribution_attribution['raw_negative_effect'])}."
+                ),
+            }
+        )
+
+    top_positive_driver = max(
+        positive_candidates, key=lambda item: item["value"]
+    ) if positive_candidates else None
+    top_negative_driver = max(
+        negative_candidates, key=lambda item: item["value"]
+    ) if negative_candidates else None
+
+    weakest_component = min(
+        [
+            ("efficiency_score", summary_values["efficiency_score"]),
+            ("accuracy_score", summary_values["accuracy_score"]),
+            ("contribution_modifier", summary_values["contribution_modifier"]),
+        ],
+        key=lambda item: item[1],
+    )
+
+    summary_lines = []
+    if top_positive_driver:
+        summary_lines.append(f"Most improved: {top_positive_driver['detail']}")
+    if top_negative_driver:
+        summary_lines.append(f"Most harmed: {top_negative_driver['detail']}")
+    summary_lines.append(
+        f"Category influence: {weakest_component[0]} is the lowest component at "
+        f"{weakest_component[1]}."
+    )
+    summary_lines.append(
+        f"Final score reconciliation: {summary_values['output_score']} output x "
+        f"{summary_values['performance_index']} performance index = "
+        f"{summary_values['final_score']}."
+    )
+
+    return {
+        "top_positive_driver": top_positive_driver,
+        "top_negative_driver": top_negative_driver,
+        "category_driver": {
+            "component": weakest_component[0],
+            "value": float(weakest_component[1]),
+            "category": summary_values["performance_category"],
+        },
+        "summary_lines": summary_lines,
+    }
+
+
+def build_attribution_payload(
+    task_metrics: pd.DataFrame,
+    adjustment_config: pd.DataFrame,
+    flags: pd.DataFrame,
+    summary_values: Dict[str, Any],
+) -> Dict[str, Any]:
+    """
+    Build all deterministic attribution outputs without changing score calculations.
+    """
+    output_attribution = build_output_attribution(
+        task_metrics=task_metrics,
+        adjustment_config=adjustment_config,
+        output_score=summary_values["output_score_raw"],
+    )
+    efficiency_attribution = build_efficiency_attribution(task_metrics)
+    accuracy_attribution = build_accuracy_attribution(task_metrics)
+    contribution_attribution = build_contribution_attribution(
+        flags=flags,
+        positive_flags=summary_values["positive_flags"],
+        negative_flags=summary_values["negative_flags"],
+        contribution_modifier=summary_values["contribution_modifier_raw"],
+    )
+    overall_attribution = build_overall_attribution(
+        output_attribution=output_attribution,
+        efficiency_attribution=efficiency_attribution,
+        accuracy_attribution=accuracy_attribution,
+        contribution_attribution=contribution_attribution,
+        summary_values=summary_values,
+    )
+
+    return {
+        "output_attribution": output_attribution,
+        "efficiency_attribution": efficiency_attribution,
+        "accuracy_attribution": accuracy_attribution,
+        "contribution_attribution": contribution_attribution,
+        "overall_attribution": overall_attribution,
+    }
 
 
 def categorize_performance(performance_index: float) -> str:
@@ -439,6 +891,26 @@ def run_scoring() -> ScoreResults:
         performance_category=performance_category,
     )
 
+    summary_values = {
+        "output_score_raw": output_score,
+        "output_score": output_score,
+        "efficiency_score": efficiency_score,
+        "accuracy_score": accuracy_score,
+        "contribution_modifier_raw": contribution_modifier,
+        "contribution_modifier": contribution_modifier,
+        "performance_index": performance_index,
+        "final_score": final_score,
+        "performance_category": performance_category,
+        "positive_flags": positive_flags,
+        "negative_flags": negative_flags,
+    }
+    attribution = build_attribution_payload(
+        task_metrics=task_metrics,
+        adjustment_config=adjustment_config,
+        flags=flags,
+        summary_values=summary_values,
+    )
+
     summary = {
         "intern_id": str(task_metrics["intern_id"].iloc[0]),
         "total_tasks": total_tasks,
@@ -457,7 +929,7 @@ def run_scoring() -> ScoreResults:
         "diagnostics": diagnostics,
     }
 
-    return ScoreResults(task_metrics=task_metrics, summary=summary)
+    return ScoreResults(task_metrics=task_metrics, summary=summary, attribution=attribution)
 
 
 def print_summary(results: ScoreResults) -> None:

@@ -367,6 +367,22 @@ def format_task_table(task_metrics: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+def format_attribution_records(records: list[dict], rename_map: dict | None = None) -> pd.DataFrame:
+    """
+    Build a display dataframe for attribution records.
+    """
+    df = pd.DataFrame(records).copy()
+    if df.empty:
+        return df
+    if rename_map:
+        df = df.rename(columns=rename_map)
+
+    numeric_cols = df.select_dtypes(include="number").columns
+    if len(numeric_cols) > 0:
+        df[numeric_cols] = df[numeric_cols].round(4)
+    return df
+
+
 def render_overview(summary: dict) -> None:
     st.title("First-Year Tax Intern Performance Dashboard")
     st.caption("Busy season MVP demo for a single employee using mock data.")
@@ -462,7 +478,7 @@ def render_task_breakdown(task_metrics: pd.DataFrame) -> None:
     st.bar_chart(chart_df)
 
 
-def render_flags_diagnostics(summary: dict, task_metrics: pd.DataFrame) -> None:
+def render_flags_diagnostics(summary: dict, task_metrics: pd.DataFrame, attribution: dict) -> None:
     st.header("Flags & Diagnostics")
 
     c1, c2, c3 = st.columns(3)
@@ -519,6 +535,240 @@ def render_flags_diagnostics(summary: dict, task_metrics: pd.DataFrame) -> None:
     st.write(f"Accuracy Score: {summary['accuracy_score']:.4f}")
     st.write(f"Contribution Modifier: {summary['contribution_modifier']:.4f}")
     st.write(f"Final Score: {summary['final_score']:.4f}")
+
+    st.divider()
+
+    st.header("Diagnostic Attribution")
+    overall = attribution["overall_attribution"]
+    st.subheader("Overall Attribution Summary")
+    for line in overall["summary_lines"]:
+        st.write(f"- {line}")
+
+    category_driver = overall["category_driver"]
+    st.write(
+        f"Current category driver: **{category_driver['component']}** = "
+        f"{category_driver['value']:.4f} for category **{category_driver['category']}**."
+    )
+
+    output_attr = attribution["output_attribution"]
+    with st.expander("Output Attribution", expanded=True):
+        reconciliation = output_attr["reconciliation"]
+        o1, o2, o3 = st.columns(3)
+        o1.metric(
+            "Base Output",
+            f"{reconciliation['base_output_without_adjustments']:.4f}",
+        )
+        o2.metric(
+            "Adjustment Output Effect",
+            f"{reconciliation['adjustment_output_effect']:.4f}",
+        )
+        o3.metric("Total Output", f"{reconciliation['total_output']:.4f}")
+
+        st.write("Output contribution by task class")
+        st.dataframe(
+            format_attribution_records(
+                output_attr["by_class"],
+                {
+                    "task_class": "Class",
+                    "class_name": "Class Name",
+                    "task_count": "Task Count",
+                    "output_contribution": "Output Contribution",
+                    "output_share": "Output Share",
+                },
+            ),
+            hide_index=True,
+            use_container_width=True,
+        )
+
+        st.write("Output contribution by task")
+        st.dataframe(
+            format_attribution_records(
+                output_attr["by_task"],
+                {
+                    "task_id": "Task ID",
+                    "task_class": "Class",
+                    "class_name": "Class Name",
+                    "base_class_weight": "Base Weight",
+                    "adjustment_multiplier": "Adjustment Multiplier",
+                    "task_output": "Task Output",
+                    "output_share": "Output Share",
+                },
+            ),
+            hide_index=True,
+            use_container_width=True,
+        )
+
+        st.write("Output effect by adjustment flag")
+        st.dataframe(
+            format_attribution_records(
+                output_attr["by_adjustment"],
+                {
+                    "adjustment_code": "Adjustment Code",
+                    "label": "Label",
+                    "task_count": "Task Count",
+                    "multiplier_add": "Multiplier Add",
+                    "output_effect": "Output Effect",
+                    "output_effect_share": "Output Effect Share",
+                },
+            ),
+            hide_index=True,
+            use_container_width=True,
+        )
+
+    efficiency_attr = attribution["efficiency_attribution"]
+    with st.expander("Efficiency Attribution", expanded=False):
+        reconciliation = efficiency_attr["reconciliation"]
+        e1, e2, e3 = st.columns(3)
+        e1.metric("Expected Hours", f"{reconciliation['total_expected_time']:.4f}")
+        e2.metric("Actual Hours", f"{reconciliation['total_actual_time']:.4f}")
+        e3.metric("Total Time Delta", f"{reconciliation['total_time_delta_hours']:.4f}")
+
+        st.write("Largest overruns")
+        st.dataframe(
+            format_attribution_records(
+                efficiency_attr["largest_overruns"],
+                {
+                    "task_id": "Task ID",
+                    "task_class": "Class",
+                    "expected_time_hours": "Expected Hours",
+                    "actual_time_hours": "Actual Hours",
+                    "time_delta_hours": "Actual - Expected",
+                    "overrun_hours": "Overrun Hours",
+                    "underrun_hours": "Underrun Hours",
+                    "inefficiency_share": "Inefficiency Share",
+                },
+            ),
+            hide_index=True,
+            use_container_width=True,
+        )
+
+        st.write("Largest underruns")
+        st.dataframe(
+            format_attribution_records(
+                efficiency_attr["largest_underruns"],
+                {
+                    "task_id": "Task ID",
+                    "task_class": "Class",
+                    "expected_time_hours": "Expected Hours",
+                    "actual_time_hours": "Actual Hours",
+                    "time_delta_hours": "Actual - Expected",
+                    "overrun_hours": "Overrun Hours",
+                    "underrun_hours": "Underrun Hours",
+                    "inefficiency_share": "Inefficiency Share",
+                },
+            ),
+            hide_index=True,
+            use_container_width=True,
+        )
+
+        st.write("Efficiency by task")
+        st.dataframe(
+            format_attribution_records(
+                efficiency_attr["by_task"],
+                {
+                    "task_id": "Task ID",
+                    "task_class": "Class",
+                    "expected_time_hours": "Expected Hours",
+                    "actual_time_hours": "Actual Hours",
+                    "time_delta_hours": "Actual - Expected",
+                    "overrun_hours": "Overrun Hours",
+                    "underrun_hours": "Underrun Hours",
+                    "inefficiency_share": "Inefficiency Share",
+                },
+            ),
+            hide_index=True,
+            use_container_width=True,
+        )
+
+    accuracy_attr = attribution["accuracy_attribution"]
+    with st.expander("Accuracy Attribution", expanded=False):
+        reconciliation = accuracy_attr["reconciliation"]
+        a1, a2, a3 = st.columns(3)
+        a1.metric("Weighted Errors", f"{reconciliation['total_weighted_errors']:.4f}")
+        a2.metric("Total Tasks", f"{reconciliation['total_tasks']}")
+        a3.metric("Accuracy Loss", f"{reconciliation['accuracy_loss']:.4f}")
+
+        st.write("Tasks driving accuracy loss")
+        st.dataframe(
+            format_attribution_records(
+                accuracy_attr["top_error_drivers"],
+                {
+                    "task_id": "Task ID",
+                    "task_class": "Class",
+                    "minor_errors": "Minor Errors",
+                    "major_errors": "Major Errors",
+                    "weighted_errors": "Weighted Errors",
+                    "minor_error_impact": "Minor Error Impact",
+                    "major_error_impact": "Major Error Impact",
+                    "total_error_count": "Total Error Count",
+                    "accuracy_loss_share": "Accuracy Loss Share",
+                    "accuracy_score_impact": "Accuracy Score Impact",
+                },
+            ),
+            hide_index=True,
+            use_container_width=True,
+        )
+
+        st.write("Error impact by severity")
+        st.dataframe(
+            format_attribution_records(
+                accuracy_attr["by_severity"],
+                {
+                    "severity": "Severity",
+                    "error_count": "Error Count",
+                    "weighted_error_impact": "Weighted Error Impact",
+                    "accuracy_score_impact": "Accuracy Score Impact",
+                },
+            ),
+            hide_index=True,
+            use_container_width=True,
+        )
+
+    contribution_attr = attribution["contribution_attribution"]
+    with st.expander("Contribution Attribution", expanded=False):
+        c1, c2, c3 = st.columns(3)
+        c1.metric(
+            "Raw Modifier Before Cap",
+            f"{contribution_attr['raw_modifier_before_cap']:.4f}",
+        )
+        c2.metric(
+            "Final Modifier After Cap",
+            f"{contribution_attr['final_modifier_after_cap']:.4f}",
+        )
+        c3.metric("Cap Applied", str(contribution_attr["cap_applied"]))
+
+        st.write(
+            f"Raw positive effect: {contribution_attr['raw_positive_effect']:.4f}; "
+            f"raw negative effect: {contribution_attr['raw_negative_effect']:.4f}."
+        )
+
+        st.write("Positive flag effect by type")
+        st.dataframe(
+            format_attribution_records(
+                contribution_attr["positive_by_type"],
+                {
+                    "flag_type": "Flag Type",
+                    "flag_count": "Flag Count",
+                    "modifier_effect": "Modifier Effect",
+                },
+            ),
+            hide_index=True,
+            use_container_width=True,
+        )
+
+        st.write("Negative flag effect by type")
+        st.dataframe(
+            format_attribution_records(
+                contribution_attr["negative_by_type"],
+                {
+                    "flag_type": "Flag Type",
+                    "flag_count": "Flag Count",
+                    "modifier_effect": "Modifier Effect",
+                },
+            ),
+            hide_index=True,
+            use_container_width=True,
+        )
 
 
 def render_admin_controls() -> None:
@@ -635,7 +885,7 @@ def main() -> None:
     elif page == "Task Breakdown":
         render_task_breakdown(task_metrics)
     elif page == "Flags & Diagnostics":
-        render_flags_diagnostics(summary, task_metrics)
+        render_flags_diagnostics(summary, task_metrics, results.attribution)
     elif page == "Admin Controls":
         render_admin_controls()
 
