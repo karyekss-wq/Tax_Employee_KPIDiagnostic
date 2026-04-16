@@ -951,14 +951,15 @@ def build_diagnostics(
     }
 
 
-def run_scoring() -> ScoreResults:
+def score_single_intern(
+    class_config: pd.DataFrame,
+    adjustment_config: pd.DataFrame,
+    tasks: pd.DataFrame,
+    flags: pd.DataFrame,
+) -> ScoreResults:
     """
-    Full scoring pipeline for the MVP.
+    Full scoring pipeline for one intern using pre-validated data subsets.
     """
-    class_config, adjustment_config, tasks, flags = load_csvs()
-    validate_inputs(class_config, adjustment_config, tasks, flags)
-    flags = prepare_flags(flags)
-
     task_metrics = build_task_metrics(class_config, adjustment_config, tasks)
     positive_flags, negative_flags = calculate_flag_counts(flags)
 
@@ -1029,9 +1030,37 @@ def run_scoring() -> ScoreResults:
     return ScoreResults(task_metrics=task_metrics, summary=summary, attribution=attribution)
 
 
+def run_scoring() -> Dict[str, ScoreResults]:
+    """
+    Full scoring pipeline for the MVP across all interns.
+    Global validation runs once and blocks all scoring on failure.
+    Returns:
+        dict[str, ScoreResults] keyed by intern_id.
+    """
+    class_config, adjustment_config, tasks, flags = load_csvs()
+    validate_inputs(class_config, adjustment_config, tasks, flags)
+    flags = prepare_flags(flags)
+
+    results_by_intern: Dict[str, ScoreResults] = {}
+    intern_ids = sorted(tasks["intern_id"].unique().tolist())
+
+    for intern_id in intern_ids:
+        intern_tasks = tasks.loc[tasks["intern_id"] == intern_id].copy()
+        intern_task_ids = set(intern_tasks["task_id"])
+        intern_flags = flags.loc[flags["task_id"].isin(intern_task_ids)].copy()
+        results_by_intern[str(intern_id)] = score_single_intern(
+            class_config=class_config,
+            adjustment_config=adjustment_config,
+            tasks=intern_tasks,
+            flags=intern_flags,
+        )
+
+    return results_by_intern
+
+
 def print_summary(results: ScoreResults) -> None:
     """
-    Terminal-friendly output for pre-UI testing.
+    Terminal-friendly output for one intern result.
     """
     summary = results.summary
 
@@ -1054,5 +1083,8 @@ def print_summary(results: ScoreResults) -> None:
 
 
 if __name__ == "__main__":
-    results = run_scoring()
-    print_summary(results)
+    results_by_intern = run_scoring()
+    print("Batch scoring results by intern:")
+    for intern_id in sorted(results_by_intern.keys()):
+        print(f"\n=== {intern_id} ===")
+        print_summary(results_by_intern[intern_id])

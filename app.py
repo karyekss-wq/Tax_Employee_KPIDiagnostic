@@ -6,7 +6,7 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
-from scoring import run_scoring
+from scoring import ScoreResults, run_scoring
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -21,9 +21,9 @@ st.set_page_config(
 
 
 @st.cache_data
-def load_results():
+def load_results() -> dict[str, ScoreResults]:
     """
-    Load scored MVP results once per session unless files change.
+    Load batch-scored intern results once per session unless files change.
     """
     return run_scoring()
 
@@ -385,7 +385,7 @@ def format_attribution_records(records: list[dict], rename_map: dict | None = No
 
 def render_overview(summary: dict) -> None:
     st.title("First-Year Tax Intern Performance Dashboard")
-    st.caption("Busy season MVP demo for a single employee using mock data.")
+    st.caption("Busy season MVP demo with batch scoring and selected-intern view.")
 
     col1, col2 = st.columns([1, 1])
 
@@ -866,9 +866,12 @@ def render_admin_controls() -> None:
 
 
 def main() -> None:
-    results = load_results()
-    summary = results.summary
-    task_metrics = results.task_metrics
+    results_by_intern = load_results()
+    intern_ids = sorted(results_by_intern.keys())
+    selected_intern_id = st.sidebar.selectbox("Selected Intern ID", intern_ids)
+    selected_results = results_by_intern[selected_intern_id]
+    summary = selected_results.summary
+    task_metrics = selected_results.task_metrics
 
     page = st.sidebar.radio(
         "Navigate",
@@ -885,7 +888,7 @@ def main() -> None:
     elif page == "Task Breakdown":
         render_task_breakdown(task_metrics)
     elif page == "Flags & Diagnostics":
-        render_flags_diagnostics(summary, task_metrics, results.attribution)
+        render_flags_diagnostics(summary, task_metrics, selected_results.attribution)
     elif page == "Admin Controls":
         render_admin_controls()
 
