@@ -1,0 +1,3347 @@
+{
+  "INT001": {
+    "summary": {
+      "intern_id": "INT001",
+      "total_tasks": 8,
+      "output_score": 14.175,
+      "total_expected_time": 37.25,
+      "total_actual_time": 33.1,
+      "efficiency_score": 1.1254,
+      "total_weighted_errors": 1.5,
+      "accuracy_score": 0.8125,
+      "contribution_modifier": 1.01,
+      "performance_index": 0.9235,
+      "final_score": 13.0908,
+      "performance_category": "Top",
+      "positive_flags": 2,
+      "negative_flags": 1,
+      "diagnostics": {
+        "efficiency_diagnostic": "Strong time efficiency: actual completion time is better than expected.",
+        "accuracy_diagnostic": "Moderate quality performance with some error impact.",
+        "contribution_diagnostic": "Constructive contribution pattern: positive flags exceed negative flags.",
+        "overall_diagnostic": "Overall performance reflects a mixed profile across output quality, speed, and contribution."
+      }
+    },
+    "attribution": {
+      "output_attribution": {
+        "by_task": [
+          {
+            "task_id": "T004",
+            "task_class": "C",
+            "class_name": "Complex Individual Return",
+            "base_class_weight": 2.0,
+            "adjustment_multiplier": 1.6,
+            "task_output": 3.2,
+            "output_share": 0.2257495590828924
+          },
+          {
+            "task_id": "T008",
+            "task_class": "C",
+            "class_name": "Complex Individual Return",
+            "base_class_weight": 2.0,
+            "adjustment_multiplier": 1.45,
+            "task_output": 2.9,
+            "output_share": 0.20458553791887124
+          },
+          {
+            "task_id": "T007",
+            "task_class": "B",
+            "class_name": "Standard Individual Return",
+            "base_class_weight": 1.35,
+            "adjustment_multiplier": 1.25,
+            "task_output": 1.6875,
+            "output_share": 0.11904761904761904
+          },
+          {
+            "task_id": "T002",
+            "task_class": "B",
+            "class_name": "Standard Individual Return",
+            "base_class_weight": 1.35,
+            "adjustment_multiplier": 1.15,
+            "task_output": 1.5525,
+            "output_share": 0.10952380952380952
+          },
+          {
+            "task_id": "T005",
+            "task_class": "B",
+            "class_name": "Standard Individual Return",
+            "base_class_weight": 1.35,
+            "adjustment_multiplier": 1.1,
+            "task_output": 1.4850000000000003,
+            "output_share": 0.10476190476190478
+          },
+          {
+            "task_id": "T003",
+            "task_class": "A",
+            "class_name": "Simple Individual Return",
+            "base_class_weight": 1.0,
+            "adjustment_multiplier": 1.2,
+            "task_output": 1.2,
+            "output_share": 0.08465608465608465
+          },
+          {
+            "task_id": "T006",
+            "task_class": "A",
+            "class_name": "Simple Individual Return",
+            "base_class_weight": 1.0,
+            "adjustment_multiplier": 1.15,
+            "task_output": 1.15,
+            "output_share": 0.08112874779541446
+          },
+          {
+            "task_id": "T001",
+            "task_class": "A",
+            "class_name": "Simple Individual Return",
+            "base_class_weight": 1.0,
+            "adjustment_multiplier": 1.0,
+            "task_output": 1.0,
+            "output_share": 0.07054673721340388
+          }
+        ],
+        "by_class": [
+          {
+            "task_class": "C",
+            "class_name": "Complex Individual Return",
+            "task_count": 2,
+            "output_contribution": 6.1,
+            "output_share": 0.43033509700176364
+          },
+          {
+            "task_class": "B",
+            "class_name": "Standard Individual Return",
+            "task_count": 3,
+            "output_contribution": 4.7250000000000005,
+            "output_share": 0.33333333333333337
+          },
+          {
+            "task_class": "A",
+            "class_name": "Simple Individual Return",
+            "task_count": 3,
+            "output_contribution": 3.3499999999999996,
+            "output_share": 0.23633156966490296
+          }
+        ],
+        "by_adjustment": [
+          {
+            "adjustment_code": "investments",
+            "label": "Investment Activity",
+            "task_count": 4,
+            "multiplier_add": 0.15,
+            "output_effect": 0.9524999999999999,
+            "output_effect_share": 0.06719576719576718
+          },
+          {
+            "adjustment_code": "k1",
+            "label": "K-1 or Pass-Through Activity",
+            "task_count": 2,
+            "multiplier_add": 0.25,
+            "output_effect": 0.8375,
+            "output_effect_share": 0.059082892416225746
+          },
+          {
+            "adjustment_code": "multi_state",
+            "label": "Multi-State Filing",
+            "task_count": 3,
+            "multiplier_add": 0.2,
+            "output_effect": 1.0,
+            "output_effect_share": 0.07054673721340388
+          },
+          {
+            "adjustment_code": "rental",
+            "label": "Rental Property",
+            "task_count": 2,
+            "multiplier_add": 0.1,
+            "output_effect": 0.335,
+            "output_effect_share": 0.0236331569664903
+          }
+        ],
+        "reconciliation": {
+          "base_output_without_adjustments": 11.05,
+          "adjustment_output_effect": 3.125,
+          "total_output": 14.175
+        }
+      },
+      "efficiency_attribution": {
+        "by_task": [
+          {
+            "task_id": "T005",
+            "task_class": "B",
+            "expected_time_hours": 3.8500000000000005,
+            "actual_time_hours": 4.4,
+            "time_delta_hours": 0.5499999999999998,
+            "overrun_hours": 0.5499999999999998,
+            "underrun_hours": 0.0,
+            "inefficiency_share": 0.8148148148148142
+          },
+          {
+            "task_id": "T006",
+            "task_class": "A",
+            "expected_time_hours": 2.3,
+            "actual_time_hours": 2.4,
+            "time_delta_hours": 0.10000000000000009,
+            "overrun_hours": 0.10000000000000009,
+            "underrun_hours": 0.0,
+            "inefficiency_share": 0.14814814814814822
+          },
+          {
+            "task_id": "T007",
+            "task_class": "B",
+            "expected_time_hours": 4.375,
+            "actual_time_hours": 4.4,
+            "time_delta_hours": 0.025000000000000355,
+            "overrun_hours": 0.025000000000000355,
+            "underrun_hours": 0.0,
+            "inefficiency_share": 0.03703703703703755
+          },
+          {
+            "task_id": "T002",
+            "task_class": "B",
+            "expected_time_hours": 4.0249999999999995,
+            "actual_time_hours": 3.9,
+            "time_delta_hours": -0.12499999999999956,
+            "overrun_hours": 0.0,
+            "underrun_hours": 0.12499999999999956,
+            "inefficiency_share": 0.0
+          },
+          {
+            "task_id": "T001",
+            "task_class": "A",
+            "expected_time_hours": 2.0,
+            "actual_time_hours": 1.6,
+            "time_delta_hours": -0.3999999999999999,
+            "overrun_hours": 0.0,
+            "underrun_hours": 0.3999999999999999,
+            "inefficiency_share": 0.0
+          },
+          {
+            "task_id": "T003",
+            "task_class": "A",
+            "expected_time_hours": 2.4,
+            "actual_time_hours": 1.9,
+            "time_delta_hours": -0.5,
+            "overrun_hours": 0.0,
+            "underrun_hours": 0.5,
+            "inefficiency_share": 0.0
+          },
+          {
+            "task_id": "T008",
+            "task_class": "C",
+            "expected_time_hours": 8.7,
+            "actual_time_hours": 8.0,
+            "time_delta_hours": -0.6999999999999993,
+            "overrun_hours": 0.0,
+            "underrun_hours": 0.6999999999999993,
+            "inefficiency_share": 0.0
+          },
+          {
+            "task_id": "T004",
+            "task_class": "C",
+            "expected_time_hours": 9.600000000000001,
+            "actual_time_hours": 6.5,
+            "time_delta_hours": -3.1000000000000014,
+            "overrun_hours": 0.0,
+            "underrun_hours": 3.1000000000000014,
+            "inefficiency_share": 0.0
+          }
+        ],
+        "largest_overruns": [
+          {
+            "task_id": "T005",
+            "task_class": "B",
+            "expected_time_hours": 3.8500000000000005,
+            "actual_time_hours": 4.4,
+            "time_delta_hours": 0.5499999999999998,
+            "overrun_hours": 0.5499999999999998,
+            "underrun_hours": 0.0,
+            "inefficiency_share": 0.8148148148148142
+          },
+          {
+            "task_id": "T006",
+            "task_class": "A",
+            "expected_time_hours": 2.3,
+            "actual_time_hours": 2.4,
+            "time_delta_hours": 0.10000000000000009,
+            "overrun_hours": 0.10000000000000009,
+            "underrun_hours": 0.0,
+            "inefficiency_share": 0.14814814814814822
+          },
+          {
+            "task_id": "T007",
+            "task_class": "B",
+            "expected_time_hours": 4.375,
+            "actual_time_hours": 4.4,
+            "time_delta_hours": 0.025000000000000355,
+            "overrun_hours": 0.025000000000000355,
+            "underrun_hours": 0.0,
+            "inefficiency_share": 0.03703703703703755
+          }
+        ],
+        "largest_underruns": [
+          {
+            "task_id": "T004",
+            "task_class": "C",
+            "expected_time_hours": 9.600000000000001,
+            "actual_time_hours": 6.5,
+            "time_delta_hours": -3.1000000000000014,
+            "overrun_hours": 0.0,
+            "underrun_hours": 3.1000000000000014,
+            "inefficiency_share": 0.0
+          },
+          {
+            "task_id": "T008",
+            "task_class": "C",
+            "expected_time_hours": 8.7,
+            "actual_time_hours": 8.0,
+            "time_delta_hours": -0.6999999999999993,
+            "overrun_hours": 0.0,
+            "underrun_hours": 0.6999999999999993,
+            "inefficiency_share": 0.0
+          },
+          {
+            "task_id": "T003",
+            "task_class": "A",
+            "expected_time_hours": 2.4,
+            "actual_time_hours": 1.9,
+            "time_delta_hours": -0.5,
+            "overrun_hours": 0.0,
+            "underrun_hours": 0.5,
+            "inefficiency_share": 0.0
+          },
+          {
+            "task_id": "T001",
+            "task_class": "A",
+            "expected_time_hours": 2.0,
+            "actual_time_hours": 1.6,
+            "time_delta_hours": -0.3999999999999999,
+            "overrun_hours": 0.0,
+            "underrun_hours": 0.3999999999999999,
+            "inefficiency_share": 0.0
+          },
+          {
+            "task_id": "T002",
+            "task_class": "B",
+            "expected_time_hours": 4.0249999999999995,
+            "actual_time_hours": 3.9,
+            "time_delta_hours": -0.12499999999999956,
+            "overrun_hours": 0.0,
+            "underrun_hours": 0.12499999999999956,
+            "inefficiency_share": 0.0
+          }
+        ],
+        "reconciliation": {
+          "total_expected_time": 37.25,
+          "total_actual_time": 33.1,
+          "total_time_delta_hours": -4.15,
+          "total_overrun_hours": 0.6750000000000003
+        }
+      },
+      "accuracy_attribution": {
+        "by_task": [
+          {
+            "task_id": "T003",
+            "task_class": "A",
+            "minor_errors": 1,
+            "major_errors": 0,
+            "weighted_errors": 0.5,
+            "minor_error_impact": 0.5,
+            "major_error_impact": 0.0,
+            "total_error_count": 1,
+            "accuracy_loss_share": 0.3333333333333333,
+            "accuracy_score_impact": 0.0625
+          },
+          {
+            "task_id": "T005",
+            "task_class": "B",
+            "minor_errors": 1,
+            "major_errors": 0,
+            "weighted_errors": 0.5,
+            "minor_error_impact": 0.5,
+            "major_error_impact": 0.0,
+            "total_error_count": 1,
+            "accuracy_loss_share": 0.3333333333333333,
+            "accuracy_score_impact": 0.0625
+          },
+          {
+            "task_id": "T008",
+            "task_class": "C",
+            "minor_errors": 1,
+            "major_errors": 0,
+            "weighted_errors": 0.5,
+            "minor_error_impact": 0.5,
+            "major_error_impact": 0.0,
+            "total_error_count": 1,
+            "accuracy_loss_share": 0.3333333333333333,
+            "accuracy_score_impact": 0.0625
+          },
+          {
+            "task_id": "T001",
+            "task_class": "A",
+            "minor_errors": 0,
+            "major_errors": 0,
+            "weighted_errors": 0.0,
+            "minor_error_impact": 0.0,
+            "major_error_impact": 0.0,
+            "total_error_count": 0,
+            "accuracy_loss_share": 0.0,
+            "accuracy_score_impact": 0.0
+          },
+          {
+            "task_id": "T002",
+            "task_class": "B",
+            "minor_errors": 0,
+            "major_errors": 0,
+            "weighted_errors": 0.0,
+            "minor_error_impact": 0.0,
+            "major_error_impact": 0.0,
+            "total_error_count": 0,
+            "accuracy_loss_share": 0.0,
+            "accuracy_score_impact": 0.0
+          },
+          {
+            "task_id": "T004",
+            "task_class": "C",
+            "minor_errors": 0,
+            "major_errors": 0,
+            "weighted_errors": 0.0,
+            "minor_error_impact": 0.0,
+            "major_error_impact": 0.0,
+            "total_error_count": 0,
+            "accuracy_loss_share": 0.0,
+            "accuracy_score_impact": 0.0
+          },
+          {
+            "task_id": "T006",
+            "task_class": "A",
+            "minor_errors": 0,
+            "major_errors": 0,
+            "weighted_errors": 0.0,
+            "minor_error_impact": 0.0,
+            "major_error_impact": 0.0,
+            "total_error_count": 0,
+            "accuracy_loss_share": 0.0,
+            "accuracy_score_impact": 0.0
+          },
+          {
+            "task_id": "T007",
+            "task_class": "B",
+            "minor_errors": 0,
+            "major_errors": 0,
+            "weighted_errors": 0.0,
+            "minor_error_impact": 0.0,
+            "major_error_impact": 0.0,
+            "total_error_count": 0,
+            "accuracy_loss_share": 0.0,
+            "accuracy_score_impact": 0.0
+          }
+        ],
+        "top_error_drivers": [
+          {
+            "task_id": "T003",
+            "task_class": "A",
+            "minor_errors": 1,
+            "major_errors": 0,
+            "weighted_errors": 0.5,
+            "minor_error_impact": 0.5,
+            "major_error_impact": 0.0,
+            "total_error_count": 1,
+            "accuracy_loss_share": 0.3333333333333333,
+            "accuracy_score_impact": 0.0625
+          },
+          {
+            "task_id": "T005",
+            "task_class": "B",
+            "minor_errors": 1,
+            "major_errors": 0,
+            "weighted_errors": 0.5,
+            "minor_error_impact": 0.5,
+            "major_error_impact": 0.0,
+            "total_error_count": 1,
+            "accuracy_loss_share": 0.3333333333333333,
+            "accuracy_score_impact": 0.0625
+          },
+          {
+            "task_id": "T008",
+            "task_class": "C",
+            "minor_errors": 1,
+            "major_errors": 0,
+            "weighted_errors": 0.5,
+            "minor_error_impact": 0.5,
+            "major_error_impact": 0.0,
+            "total_error_count": 1,
+            "accuracy_loss_share": 0.3333333333333333,
+            "accuracy_score_impact": 0.0625
+          }
+        ],
+        "by_severity": [
+          {
+            "severity": "minor",
+            "error_count": 3,
+            "weighted_error_impact": 1.5,
+            "accuracy_score_impact": 0.1875
+          },
+          {
+            "severity": "major",
+            "error_count": 0,
+            "weighted_error_impact": 0.0,
+            "accuracy_score_impact": 0.0
+          }
+        ],
+        "reconciliation": {
+          "total_weighted_errors": 1.5,
+          "total_tasks": 8,
+          "accuracy_loss": 0.1875
+        }
+      },
+      "contribution_attribution": {
+        "positive_by_type": [
+          {
+            "flag_type": "helped_peer",
+            "flag_count": 1,
+            "modifier_effect": 0.015
+          },
+          {
+            "flag_type": "proactive_update",
+            "flag_count": 1,
+            "modifier_effect": 0.015
+          }
+        ],
+        "negative_by_type": [
+          {
+            "flag_type": "rework_requested",
+            "flag_count": 1,
+            "modifier_effect": -0.02
+          }
+        ],
+        "raw_positive_effect": 0.03,
+        "raw_negative_effect": -0.02,
+        "raw_modifier_before_cap": 1.01,
+        "final_modifier_after_cap": 1.01,
+        "cap_applied": false,
+        "reconciliation": {
+          "positive_flags": 2,
+          "negative_flags": 1
+        }
+      },
+      "overall_attribution": {
+        "top_positive_driver": {
+          "driver": "highest_output_task",
+          "label": "T004",
+          "value": 3.2,
+          "detail": "T004 contributed 3.2 output points."
+        },
+        "top_negative_driver": {
+          "driver": "largest_time_overrun",
+          "label": "T005",
+          "value": 0.5499999999999998,
+          "detail": "T005 ran 0.5499999999999998 hours over expected time."
+        },
+        "category_driver": {
+          "component": "accuracy_score",
+          "value": 0.8125,
+          "category": "Top"
+        },
+        "summary_lines": [
+          "Most improved: T004 contributed 3.2 output points.",
+          "Most harmed: T005 ran 0.5499999999999998 hours over expected time.",
+          "Category influence: accuracy_score is the lowest component at 0.8125.",
+          "Final score reconciliation: 14.175 output x 0.9235130287009063 performance index = 13.090797181835349."
+        ]
+      }
+    },
+    "task_metrics": [
+      {
+        "task_id": "T001",
+        "intern_id": "INT001",
+        "period": "W1",
+        "task_class": "A",
+        "multi_state": 0,
+        "investments": 0,
+        "rental": 0,
+        "k1": 0,
+        "timer_start": "2026-02-10 09:00:00",
+        "timer_end": "2026-02-10 10:36:00",
+        "timer_running": 0,
+        "actual_time_hours": 1.6,
+        "minor_errors": 0,
+        "major_errors": 0,
+        "completed_at": "2026-02-10 10:36:00",
+        "class_name": "Simple Individual Return",
+        "base_class_weight": 1.0,
+        "base_expected_hours": 2.0,
+        "adjustment_add": 0.0,
+        "adjustment_multiplier": 1.0,
+        "expected_time_hours": 2.0,
+        "task_output": 1.0,
+        "efficiency_ratio_raw": 1.25,
+        "efficiency_ratio_capped": 1.25,
+        "weighted_errors": 0.0,
+        "active_adjustments": "None"
+      },
+      {
+        "task_id": "T002",
+        "intern_id": "INT001",
+        "period": "W1",
+        "task_class": "B",
+        "multi_state": 0,
+        "investments": 1,
+        "rental": 0,
+        "k1": 0,
+        "timer_start": "2026-02-10 11:00:00",
+        "timer_end": "2026-02-10 14:54:00",
+        "timer_running": 0,
+        "actual_time_hours": 3.9,
+        "minor_errors": 0,
+        "major_errors": 0,
+        "completed_at": "2026-02-10 14:54:00",
+        "class_name": "Standard Individual Return",
+        "base_class_weight": 1.35,
+        "base_expected_hours": 3.5,
+        "adjustment_add": 0.15,
+        "adjustment_multiplier": 1.15,
+        "expected_time_hours": 4.0249999999999995,
+        "task_output": 1.5525,
+        "efficiency_ratio_raw": 1.032051282051282,
+        "efficiency_ratio_capped": 1.032051282051282,
+        "weighted_errors": 0.0,
+        "active_adjustments": "investments"
+      },
+      {
+        "task_id": "T003",
+        "intern_id": "INT001",
+        "period": "W1",
+        "task_class": "A",
+        "multi_state": 1,
+        "investments": 0,
+        "rental": 0,
+        "k1": 0,
+        "timer_start": "2026-02-11 09:10:00",
+        "timer_end": "2026-02-11 11:04:00",
+        "timer_running": 0,
+        "actual_time_hours": 1.9,
+        "minor_errors": 1,
+        "major_errors": 0,
+        "completed_at": "2026-02-11 11:04:00",
+        "class_name": "Simple Individual Return",
+        "base_class_weight": 1.0,
+        "base_expected_hours": 2.0,
+        "adjustment_add": 0.2,
+        "adjustment_multiplier": 1.2,
+        "expected_time_hours": 2.4,
+        "task_output": 1.2,
+        "efficiency_ratio_raw": 1.263157894736842,
+        "efficiency_ratio_capped": 1.25,
+        "weighted_errors": 0.5,
+        "active_adjustments": "multi_state"
+      },
+      {
+        "task_id": "T004",
+        "intern_id": "INT001",
+        "period": "W2",
+        "task_class": "C",
+        "multi_state": 1,
+        "investments": 1,
+        "rental": 0,
+        "k1": 1,
+        "timer_start": "2026-02-17 08:55:00",
+        "timer_end": "2026-02-17 15:25:00",
+        "timer_running": 0,
+        "actual_time_hours": 6.5,
+        "minor_errors": 0,
+        "major_errors": 0,
+        "completed_at": "2026-02-17 15:25:00",
+        "class_name": "Complex Individual Return",
+        "base_class_weight": 2.0,
+        "base_expected_hours": 6.0,
+        "adjustment_add": 0.6,
+        "adjustment_multiplier": 1.6,
+        "expected_time_hours": 9.600000000000001,
+        "task_output": 3.2,
+        "efficiency_ratio_raw": 1.4769230769230772,
+        "efficiency_ratio_capped": 1.25,
+        "weighted_errors": 0.0,
+        "active_adjustments": "multi_state, investments, k1"
+      },
+      {
+        "task_id": "T005",
+        "intern_id": "INT001",
+        "period": "W2",
+        "task_class": "B",
+        "multi_state": 0,
+        "investments": 0,
+        "rental": 1,
+        "k1": 0,
+        "timer_start": "2026-02-18 10:15:00",
+        "timer_end": "2026-02-18 14:39:00",
+        "timer_running": 0,
+        "actual_time_hours": 4.4,
+        "minor_errors": 1,
+        "major_errors": 0,
+        "completed_at": "2026-02-18 14:39:00",
+        "class_name": "Standard Individual Return",
+        "base_class_weight": 1.35,
+        "base_expected_hours": 3.5,
+        "adjustment_add": 0.1,
+        "adjustment_multiplier": 1.1,
+        "expected_time_hours": 3.8500000000000005,
+        "task_output": 1.4850000000000003,
+        "efficiency_ratio_raw": 0.875,
+        "efficiency_ratio_capped": 0.875,
+        "weighted_errors": 0.5,
+        "active_adjustments": "rental"
+      },
+      {
+        "task_id": "T006",
+        "intern_id": "INT001",
+        "period": "W3",
+        "task_class": "A",
+        "multi_state": 0,
+        "investments": 1,
+        "rental": 0,
+        "k1": 0,
+        "timer_start": "2026-02-24 09:05:00",
+        "timer_end": "2026-02-24 11:29:00",
+        "timer_running": 0,
+        "actual_time_hours": 2.4,
+        "minor_errors": 0,
+        "major_errors": 0,
+        "completed_at": "2026-02-24 11:29:00",
+        "class_name": "Simple Individual Return",
+        "base_class_weight": 1.0,
+        "base_expected_hours": 2.0,
+        "adjustment_add": 0.15,
+        "adjustment_multiplier": 1.15,
+        "expected_time_hours": 2.3,
+        "task_output": 1.15,
+        "efficiency_ratio_raw": 0.9583333333333333,
+        "efficiency_ratio_capped": 0.9583333333333333,
+        "weighted_errors": 0.0,
+        "active_adjustments": "investments"
+      },
+      {
+        "task_id": "T007",
+        "intern_id": "INT001",
+        "period": "W3",
+        "task_class": "B",
+        "multi_state": 0,
+        "investments": 0,
+        "rental": 0,
+        "k1": 1,
+        "timer_start": "2026-02-25 09:20:00",
+        "timer_end": "2026-02-25 13:44:00",
+        "timer_running": 0,
+        "actual_time_hours": 4.4,
+        "minor_errors": 0,
+        "major_errors": 0,
+        "completed_at": "2026-02-25 13:44:00",
+        "class_name": "Standard Individual Return",
+        "base_class_weight": 1.35,
+        "base_expected_hours": 3.5,
+        "adjustment_add": 0.25,
+        "adjustment_multiplier": 1.25,
+        "expected_time_hours": 4.375,
+        "task_output": 1.6875,
+        "efficiency_ratio_raw": 0.9943181818181818,
+        "efficiency_ratio_capped": 0.9943181818181818,
+        "weighted_errors": 0.0,
+        "active_adjustments": "k1"
+      },
+      {
+        "task_id": "T008",
+        "intern_id": "INT001",
+        "period": "W4",
+        "task_class": "C",
+        "multi_state": 1,
+        "investments": 1,
+        "rental": 1,
+        "k1": 0,
+        "timer_start": "2026-03-03 08:45:00",
+        "timer_end": "2026-03-03 16:45:00",
+        "timer_running": 0,
+        "actual_time_hours": 8.0,
+        "minor_errors": 1,
+        "major_errors": 0,
+        "completed_at": "2026-03-03 16:45:00",
+        "class_name": "Complex Individual Return",
+        "base_class_weight": 2.0,
+        "base_expected_hours": 6.0,
+        "adjustment_add": 0.44999999999999996,
+        "adjustment_multiplier": 1.45,
+        "expected_time_hours": 8.7,
+        "task_output": 2.9,
+        "efficiency_ratio_raw": 1.0875,
+        "efficiency_ratio_capped": 1.0875,
+        "weighted_errors": 0.5,
+        "active_adjustments": "multi_state, investments, rental"
+      }
+    ]
+  },
+  "INT002": {
+    "summary": {
+      "intern_id": "INT002",
+      "total_tasks": 5,
+      "output_score": 8.4125,
+      "total_expected_time": 21.525,
+      "total_actual_time": 25.0,
+      "efficiency_score": 0.861,
+      "total_weighted_errors": 8.5,
+      "accuracy_score": -0.7,
+      "contribution_modifier": 0.9,
+      "performance_index": -0.5424,
+      "final_score": -4.5632,
+      "performance_category": "Risk",
+      "positive_flags": 0,
+      "negative_flags": 7,
+      "diagnostics": {
+        "efficiency_diagnostic": "Time management concern: actual completion time is materially above expected time.",
+        "accuracy_diagnostic": "Quality risk: error rate is materially affecting performance.",
+        "contribution_diagnostic": "Contribution concern: negative flags exceed positive flags.",
+        "overall_diagnostic": "Overall performance risk is primarily quality-driven."
+      }
+    },
+    "attribution": {
+      "output_attribution": {
+        "by_task": [
+          {
+            "task_id": "T012",
+            "task_class": "C",
+            "class_name": "Complex Individual Return",
+            "base_class_weight": 2.0,
+            "adjustment_multiplier": 1.25,
+            "task_output": 2.5,
+            "output_share": 0.2971768202080237
+          },
+          {
+            "task_id": "T013",
+            "task_class": "B",
+            "class_name": "Standard Individual Return",
+            "base_class_weight": 1.35,
+            "adjustment_multiplier": 1.6,
+            "task_output": 2.16,
+            "output_share": 0.2567607726597325
+          },
+          {
+            "task_id": "T010",
+            "task_class": "B",
+            "class_name": "Standard Individual Return",
+            "base_class_weight": 1.35,
+            "adjustment_multiplier": 1.15,
+            "task_output": 1.5525,
+            "output_share": 0.18454680534918272
+          },
+          {
+            "task_id": "T011",
+            "task_class": "A",
+            "class_name": "Simple Individual Return",
+            "base_class_weight": 1.0,
+            "adjustment_multiplier": 1.2,
+            "task_output": 1.2,
+            "output_share": 0.14264487369985138
+          },
+          {
+            "task_id": "T009",
+            "task_class": "A",
+            "class_name": "Simple Individual Return",
+            "base_class_weight": 1.0,
+            "adjustment_multiplier": 1.0,
+            "task_output": 1.0,
+            "output_share": 0.11887072808320949
+          }
+        ],
+        "by_class": [
+          {
+            "task_class": "B",
+            "class_name": "Standard Individual Return",
+            "task_count": 2,
+            "output_contribution": 3.7125000000000004,
+            "output_share": 0.4413075780089153
+          },
+          {
+            "task_class": "C",
+            "class_name": "Complex Individual Return",
+            "task_count": 1,
+            "output_contribution": 2.5,
+            "output_share": 0.2971768202080237
+          },
+          {
+            "task_class": "A",
+            "class_name": "Simple Individual Return",
+            "task_count": 2,
+            "output_contribution": 2.2,
+            "output_share": 0.2615156017830609
+          }
+        ],
+        "by_adjustment": [
+          {
+            "adjustment_code": "investments",
+            "label": "Investment Activity",
+            "task_count": 3,
+            "multiplier_add": 0.15,
+            "output_effect": 0.705,
+            "output_effect_share": 0.08380386329866268
+          },
+          {
+            "adjustment_code": "k1",
+            "label": "K-1 or Pass-Through Activity",
+            "task_count": 1,
+            "multiplier_add": 0.25,
+            "output_effect": 0.3375,
+            "output_effect_share": 0.040118870728083206
+          },
+          {
+            "adjustment_code": "multi_state",
+            "label": "Multi-State Filing",
+            "task_count": 2,
+            "multiplier_add": 0.2,
+            "output_effect": 0.47000000000000003,
+            "output_effect_share": 0.055869242199108465
+          },
+          {
+            "adjustment_code": "rental",
+            "label": "Rental Property",
+            "task_count": 1,
+            "multiplier_add": 0.1,
+            "output_effect": 0.2,
+            "output_effect_share": 0.0237741456166419
+          }
+        ],
+        "reconciliation": {
+          "base_output_without_adjustments": 6.699999999999999,
+          "adjustment_output_effect": 1.7125,
+          "total_output": 8.412500000000001
+        }
+      },
+      "efficiency_attribution": {
+        "by_task": [
+          {
+            "task_id": "T010",
+            "task_class": "B",
+            "expected_time_hours": 4.0249999999999995,
+            "actual_time_hours": 5.4,
+            "time_delta_hours": 1.3750000000000009,
+            "overrun_hours": 1.3750000000000009,
+            "underrun_hours": 0.0,
+            "inefficiency_share": 0.3956834532374103
+          },
+          {
+            "task_id": "T009",
+            "task_class": "A",
+            "expected_time_hours": 2.0,
+            "actual_time_hours": 2.7,
+            "time_delta_hours": 0.7000000000000002,
+            "overrun_hours": 0.7000000000000002,
+            "underrun_hours": 0.0,
+            "inefficiency_share": 0.20143884892086333
+          },
+          {
+            "task_id": "T011",
+            "task_class": "A",
+            "expected_time_hours": 2.4,
+            "actual_time_hours": 2.9,
+            "time_delta_hours": 0.5,
+            "overrun_hours": 0.5,
+            "underrun_hours": 0.0,
+            "inefficiency_share": 0.1438848920863309
+          },
+          {
+            "task_id": "T013",
+            "task_class": "B",
+            "expected_time_hours": 5.6000000000000005,
+            "actual_time_hours": 6.1,
+            "time_delta_hours": 0.4999999999999991,
+            "overrun_hours": 0.4999999999999991,
+            "underrun_hours": 0.0,
+            "inefficiency_share": 0.14388489208633065
+          },
+          {
+            "task_id": "T012",
+            "task_class": "C",
+            "expected_time_hours": 7.5,
+            "actual_time_hours": 7.9,
+            "time_delta_hours": 0.40000000000000036,
+            "overrun_hours": 0.40000000000000036,
+            "underrun_hours": 0.0,
+            "inefficiency_share": 0.11510791366906484
+          }
+        ],
+        "largest_overruns": [
+          {
+            "task_id": "T010",
+            "task_class": "B",
+            "expected_time_hours": 4.0249999999999995,
+            "actual_time_hours": 5.4,
+            "time_delta_hours": 1.3750000000000009,
+            "overrun_hours": 1.3750000000000009,
+            "underrun_hours": 0.0,
+            "inefficiency_share": 0.3956834532374103
+          },
+          {
+            "task_id": "T009",
+            "task_class": "A",
+            "expected_time_hours": 2.0,
+            "actual_time_hours": 2.7,
+            "time_delta_hours": 0.7000000000000002,
+            "overrun_hours": 0.7000000000000002,
+            "underrun_hours": 0.0,
+            "inefficiency_share": 0.20143884892086333
+          },
+          {
+            "task_id": "T011",
+            "task_class": "A",
+            "expected_time_hours": 2.4,
+            "actual_time_hours": 2.9,
+            "time_delta_hours": 0.5,
+            "overrun_hours": 0.5,
+            "underrun_hours": 0.0,
+            "inefficiency_share": 0.1438848920863309
+          },
+          {
+            "task_id": "T013",
+            "task_class": "B",
+            "expected_time_hours": 5.6000000000000005,
+            "actual_time_hours": 6.1,
+            "time_delta_hours": 0.4999999999999991,
+            "overrun_hours": 0.4999999999999991,
+            "underrun_hours": 0.0,
+            "inefficiency_share": 0.14388489208633065
+          },
+          {
+            "task_id": "T012",
+            "task_class": "C",
+            "expected_time_hours": 7.5,
+            "actual_time_hours": 7.9,
+            "time_delta_hours": 0.40000000000000036,
+            "overrun_hours": 0.40000000000000036,
+            "underrun_hours": 0.0,
+            "inefficiency_share": 0.11510791366906484
+          }
+        ],
+        "largest_underruns": [],
+        "reconciliation": {
+          "total_expected_time": 21.525,
+          "total_actual_time": 25.0,
+          "total_time_delta_hours": 3.4750000000000005,
+          "total_overrun_hours": 3.4750000000000005
+        }
+      },
+      "accuracy_attribution": {
+        "by_task": [
+          {
+            "task_id": "T012",
+            "task_class": "C",
+            "minor_errors": 4,
+            "major_errors": 1,
+            "weighted_errors": 3.5,
+            "minor_error_impact": 2.0,
+            "major_error_impact": 1.5,
+            "total_error_count": 5,
+            "accuracy_loss_share": 0.4117647058823529,
+            "accuracy_score_impact": 0.7
+          },
+          {
+            "task_id": "T010",
+            "task_class": "B",
+            "minor_errors": 3,
+            "major_errors": 0,
+            "weighted_errors": 1.5,
+            "minor_error_impact": 1.5,
+            "major_error_impact": 0.0,
+            "total_error_count": 3,
+            "accuracy_loss_share": 0.17647058823529413,
+            "accuracy_score_impact": 0.3
+          },
+          {
+            "task_id": "T013",
+            "task_class": "B",
+            "minor_errors": 3,
+            "major_errors": 0,
+            "weighted_errors": 1.5,
+            "minor_error_impact": 1.5,
+            "major_error_impact": 0.0,
+            "total_error_count": 3,
+            "accuracy_loss_share": 0.17647058823529413,
+            "accuracy_score_impact": 0.3
+          },
+          {
+            "task_id": "T009",
+            "task_class": "A",
+            "minor_errors": 2,
+            "major_errors": 0,
+            "weighted_errors": 1.0,
+            "minor_error_impact": 1.0,
+            "major_error_impact": 0.0,
+            "total_error_count": 2,
+            "accuracy_loss_share": 0.11764705882352941,
+            "accuracy_score_impact": 0.2
+          },
+          {
+            "task_id": "T011",
+            "task_class": "A",
+            "minor_errors": 2,
+            "major_errors": 0,
+            "weighted_errors": 1.0,
+            "minor_error_impact": 1.0,
+            "major_error_impact": 0.0,
+            "total_error_count": 2,
+            "accuracy_loss_share": 0.11764705882352941,
+            "accuracy_score_impact": 0.2
+          }
+        ],
+        "top_error_drivers": [
+          {
+            "task_id": "T012",
+            "task_class": "C",
+            "minor_errors": 4,
+            "major_errors": 1,
+            "weighted_errors": 3.5,
+            "minor_error_impact": 2.0,
+            "major_error_impact": 1.5,
+            "total_error_count": 5,
+            "accuracy_loss_share": 0.4117647058823529,
+            "accuracy_score_impact": 0.7
+          },
+          {
+            "task_id": "T010",
+            "task_class": "B",
+            "minor_errors": 3,
+            "major_errors": 0,
+            "weighted_errors": 1.5,
+            "minor_error_impact": 1.5,
+            "major_error_impact": 0.0,
+            "total_error_count": 3,
+            "accuracy_loss_share": 0.17647058823529413,
+            "accuracy_score_impact": 0.3
+          },
+          {
+            "task_id": "T013",
+            "task_class": "B",
+            "minor_errors": 3,
+            "major_errors": 0,
+            "weighted_errors": 1.5,
+            "minor_error_impact": 1.5,
+            "major_error_impact": 0.0,
+            "total_error_count": 3,
+            "accuracy_loss_share": 0.17647058823529413,
+            "accuracy_score_impact": 0.3
+          },
+          {
+            "task_id": "T009",
+            "task_class": "A",
+            "minor_errors": 2,
+            "major_errors": 0,
+            "weighted_errors": 1.0,
+            "minor_error_impact": 1.0,
+            "major_error_impact": 0.0,
+            "total_error_count": 2,
+            "accuracy_loss_share": 0.11764705882352941,
+            "accuracy_score_impact": 0.2
+          },
+          {
+            "task_id": "T011",
+            "task_class": "A",
+            "minor_errors": 2,
+            "major_errors": 0,
+            "weighted_errors": 1.0,
+            "minor_error_impact": 1.0,
+            "major_error_impact": 0.0,
+            "total_error_count": 2,
+            "accuracy_loss_share": 0.11764705882352941,
+            "accuracy_score_impact": 0.2
+          }
+        ],
+        "by_severity": [
+          {
+            "severity": "minor",
+            "error_count": 14,
+            "weighted_error_impact": 7.0,
+            "accuracy_score_impact": 1.4
+          },
+          {
+            "severity": "major",
+            "error_count": 1,
+            "weighted_error_impact": 1.5,
+            "accuracy_score_impact": 0.3
+          }
+        ],
+        "reconciliation": {
+          "total_weighted_errors": 8.5,
+          "total_tasks": 5,
+          "accuracy_loss": 1.7
+        }
+      },
+      "contribution_attribution": {
+        "positive_by_type": [],
+        "negative_by_type": [
+          {
+            "flag_type": "rework_requested",
+            "flag_count": 5,
+            "modifier_effect": -0.1
+          },
+          {
+            "flag_type": "blocked_escalated_late",
+            "flag_count": 2,
+            "modifier_effect": -0.04
+          }
+        ],
+        "raw_positive_effect": 0.0,
+        "raw_negative_effect": -0.14,
+        "raw_modifier_before_cap": 0.86,
+        "final_modifier_after_cap": 0.9,
+        "cap_applied": true,
+        "reconciliation": {
+          "positive_flags": 0,
+          "negative_flags": 7
+        }
+      },
+      "overall_attribution": {
+        "top_positive_driver": {
+          "driver": "highest_output_task",
+          "label": "T012",
+          "value": 2.5,
+          "detail": "T012 contributed 2.5 output points."
+        },
+        "top_negative_driver": {
+          "driver": "largest_error_driver",
+          "label": "T012",
+          "value": 3.5,
+          "detail": "T012 added 3.5 weighted errors."
+        },
+        "category_driver": {
+          "component": "accuracy_score",
+          "value": -0.7,
+          "category": "Risk"
+        },
+        "summary_lines": [
+          "Most improved: T012 contributed 2.5 output points.",
+          "Most harmed: T012 added 3.5 weighted errors.",
+          "Category influence: accuracy_score is the lowest component at -0.7.",
+          "Final score reconciliation: 8.412500000000001 output x -0.54243 performance index = -4.563192375000001."
+        ]
+      }
+    },
+    "task_metrics": [
+      {
+        "task_id": "T009",
+        "intern_id": "INT002",
+        "period": "W1",
+        "task_class": "A",
+        "multi_state": 0,
+        "investments": 0,
+        "rental": 0,
+        "k1": 0,
+        "timer_start": "2026-02-10 09:15:00",
+        "timer_end": "2026-02-10 11:57:00",
+        "timer_running": 0,
+        "actual_time_hours": 2.7,
+        "minor_errors": 2,
+        "major_errors": 0,
+        "completed_at": "2026-02-10 11:57:00",
+        "class_name": "Simple Individual Return",
+        "base_class_weight": 1.0,
+        "base_expected_hours": 2.0,
+        "adjustment_add": 0.0,
+        "adjustment_multiplier": 1.0,
+        "expected_time_hours": 2.0,
+        "task_output": 1.0,
+        "efficiency_ratio_raw": 0.7407407407407407,
+        "efficiency_ratio_capped": 0.7407407407407407,
+        "weighted_errors": 1.0,
+        "active_adjustments": "None"
+      },
+      {
+        "task_id": "T010",
+        "intern_id": "INT002",
+        "period": "W1",
+        "task_class": "B",
+        "multi_state": 0,
+        "investments": 1,
+        "rental": 0,
+        "k1": 0,
+        "timer_start": "2026-02-11 09:00:00",
+        "timer_end": "2026-02-11 14:24:00",
+        "timer_running": 0,
+        "actual_time_hours": 5.4,
+        "minor_errors": 3,
+        "major_errors": 0,
+        "completed_at": "2026-02-11 14:24:00",
+        "class_name": "Standard Individual Return",
+        "base_class_weight": 1.35,
+        "base_expected_hours": 3.5,
+        "adjustment_add": 0.15,
+        "adjustment_multiplier": 1.15,
+        "expected_time_hours": 4.0249999999999995,
+        "task_output": 1.5525,
+        "efficiency_ratio_raw": 0.7453703703703702,
+        "efficiency_ratio_capped": 0.7453703703703702,
+        "weighted_errors": 1.5,
+        "active_adjustments": "investments"
+      },
+      {
+        "task_id": "T011",
+        "intern_id": "INT002",
+        "period": "W2",
+        "task_class": "A",
+        "multi_state": 1,
+        "investments": 0,
+        "rental": 0,
+        "k1": 0,
+        "timer_start": "2026-02-17 10:00:00",
+        "timer_end": "2026-02-17 12:54:00",
+        "timer_running": 0,
+        "actual_time_hours": 2.9,
+        "minor_errors": 2,
+        "major_errors": 0,
+        "completed_at": "2026-02-17 12:54:00",
+        "class_name": "Simple Individual Return",
+        "base_class_weight": 1.0,
+        "base_expected_hours": 2.0,
+        "adjustment_add": 0.2,
+        "adjustment_multiplier": 1.2,
+        "expected_time_hours": 2.4,
+        "task_output": 1.2,
+        "efficiency_ratio_raw": 0.8275862068965517,
+        "efficiency_ratio_capped": 0.8275862068965517,
+        "weighted_errors": 1.0,
+        "active_adjustments": "multi_state"
+      },
+      {
+        "task_id": "T012",
+        "intern_id": "INT002",
+        "period": "W3",
+        "task_class": "C",
+        "multi_state": 0,
+        "investments": 1,
+        "rental": 1,
+        "k1": 0,
+        "timer_start": "2026-02-24 08:45:00",
+        "timer_end": "2026-02-24 16:39:00",
+        "timer_running": 0,
+        "actual_time_hours": 7.9,
+        "minor_errors": 4,
+        "major_errors": 1,
+        "completed_at": "2026-02-24 16:39:00",
+        "class_name": "Complex Individual Return",
+        "base_class_weight": 2.0,
+        "base_expected_hours": 6.0,
+        "adjustment_add": 0.25,
+        "adjustment_multiplier": 1.25,
+        "expected_time_hours": 7.5,
+        "task_output": 2.5,
+        "efficiency_ratio_raw": 0.9493670886075949,
+        "efficiency_ratio_capped": 0.9493670886075949,
+        "weighted_errors": 3.5,
+        "active_adjustments": "investments, rental"
+      },
+      {
+        "task_id": "T013",
+        "intern_id": "INT002",
+        "period": "W4",
+        "task_class": "B",
+        "multi_state": 1,
+        "investments": 1,
+        "rental": 0,
+        "k1": 1,
+        "timer_start": "2026-03-03 09:10:00",
+        "timer_end": "2026-03-03 15:16:00",
+        "timer_running": 0,
+        "actual_time_hours": 6.1,
+        "minor_errors": 3,
+        "major_errors": 0,
+        "completed_at": "2026-03-03 15:16:00",
+        "class_name": "Standard Individual Return",
+        "base_class_weight": 1.35,
+        "base_expected_hours": 3.5,
+        "adjustment_add": 0.6,
+        "adjustment_multiplier": 1.6,
+        "expected_time_hours": 5.6000000000000005,
+        "task_output": 2.16,
+        "efficiency_ratio_raw": 0.918032786885246,
+        "efficiency_ratio_capped": 0.918032786885246,
+        "weighted_errors": 1.5,
+        "active_adjustments": "multi_state, investments, k1"
+      }
+    ]
+  },
+  "INT003": {
+    "summary": {
+      "intern_id": "INT003",
+      "total_tasks": 9,
+      "output_score": 18.1675,
+      "total_expected_time": 48.875,
+      "total_actual_time": 51.0,
+      "efficiency_score": 0.9583,
+      "total_weighted_errors": 16.0,
+      "accuracy_score": -0.7778,
+      "contribution_modifier": 0.9,
+      "performance_index": -0.6708,
+      "final_score": -12.1874,
+      "performance_category": "Risk",
+      "positive_flags": 7,
+      "negative_flags": 12,
+      "diagnostics": {
+        "efficiency_diagnostic": "Time performance is near expected levels.",
+        "accuracy_diagnostic": "Quality risk: error rate is materially affecting performance.",
+        "contribution_diagnostic": "Contribution concern: negative flags exceed positive flags.",
+        "overall_diagnostic": "Overall performance risk is primarily quality-driven."
+      }
+    },
+    "attribution": {
+      "output_attribution": {
+        "by_task": [
+          {
+            "task_id": "T015",
+            "task_class": "C",
+            "class_name": "Complex Individual Return",
+            "base_class_weight": 2.0,
+            "adjustment_multiplier": 1.7,
+            "task_output": 3.4,
+            "output_share": 0.18714737856061647
+          },
+          {
+            "task_id": "T018",
+            "task_class": "C",
+            "class_name": "Complex Individual Return",
+            "base_class_weight": 2.0,
+            "adjustment_multiplier": 1.55,
+            "task_output": 3.1,
+            "output_share": 0.17063437456997385
+          },
+          {
+            "task_id": "T022",
+            "task_class": "C",
+            "class_name": "Complex Individual Return",
+            "base_class_weight": 2.0,
+            "adjustment_multiplier": 1.4,
+            "task_output": 2.8,
+            "output_share": 0.1541213705793312
+          },
+          {
+            "task_id": "T020",
+            "task_class": "B",
+            "class_name": "Standard Individual Return",
+            "base_class_weight": 1.35,
+            "adjustment_multiplier": 1.45,
+            "task_output": 1.9575,
+            "output_share": 0.10774735103894316
+          },
+          {
+            "task_id": "T014",
+            "task_class": "B",
+            "class_name": "Standard Individual Return",
+            "base_class_weight": 1.35,
+            "adjustment_multiplier": 1.35,
+            "task_output": 1.8225000000000002,
+            "output_share": 0.100316499243154
+          },
+          {
+            "task_id": "T017",
+            "task_class": "B",
+            "class_name": "Standard Individual Return",
+            "base_class_weight": 1.35,
+            "adjustment_multiplier": 1.25,
+            "task_output": 1.6875,
+            "output_share": 0.0928856474473648
+          },
+          {
+            "task_id": "T016",
+            "task_class": "A",
+            "class_name": "Simple Individual Return",
+            "base_class_weight": 1.0,
+            "adjustment_multiplier": 1.25,
+            "task_output": 1.25,
+            "output_share": 0.06880418329434429
+          },
+          {
+            "task_id": "T019",
+            "task_class": "A",
+            "class_name": "Simple Individual Return",
+            "base_class_weight": 1.0,
+            "adjustment_multiplier": 1.15,
+            "task_output": 1.15,
+            "output_share": 0.06329984863079674
+          },
+          {
+            "task_id": "T021",
+            "task_class": "A",
+            "class_name": "Simple Individual Return",
+            "base_class_weight": 1.0,
+            "adjustment_multiplier": 1.0,
+            "task_output": 1.0,
+            "output_share": 0.055043346635475436
+          }
+        ],
+        "by_class": [
+          {
+            "task_class": "C",
+            "class_name": "Complex Individual Return",
+            "task_count": 3,
+            "output_contribution": 9.3,
+            "output_share": 0.5119031237099216
+          },
+          {
+            "task_class": "B",
+            "class_name": "Standard Individual Return",
+            "task_count": 3,
+            "output_contribution": 5.4675,
+            "output_share": 0.30094949772946195
+          },
+          {
+            "task_class": "A",
+            "class_name": "Simple Individual Return",
+            "task_count": 3,
+            "output_contribution": 3.4,
+            "output_share": 0.18714737856061647
+          }
+        ],
+        "by_adjustment": [
+          {
+            "adjustment_code": "investments",
+            "label": "Investment Activity",
+            "task_count": 5,
+            "multiplier_add": 0.15,
+            "output_effect": 1.155,
+            "output_effect_share": 0.06357506536397413
+          },
+          {
+            "adjustment_code": "k1",
+            "label": "K-1 or Pass-Through Activity",
+            "task_count": 5,
+            "multiplier_add": 0.25,
+            "output_effect": 2.0875,
+            "output_effect_share": 0.11490298610155497
+          },
+          {
+            "adjustment_code": "multi_state",
+            "label": "Multi-State Filing",
+            "task_count": 4,
+            "multiplier_add": 0.2,
+            "output_effect": 1.34,
+            "output_effect_share": 0.07375808449153709
+          },
+          {
+            "adjustment_code": "rental",
+            "label": "Rental Property",
+            "task_count": 3,
+            "multiplier_add": 0.1,
+            "output_effect": 0.535,
+            "output_effect_share": 0.02944819044997936
+          }
+        ],
+        "reconciliation": {
+          "base_output_without_adjustments": 13.05,
+          "adjustment_output_effect": 5.1175,
+          "total_output": 18.1675
+        }
+      },
+      "efficiency_attribution": {
+        "by_task": [
+          {
+            "task_id": "T017",
+            "task_class": "B",
+            "expected_time_hours": 4.375,
+            "actual_time_hours": 6.0,
+            "time_delta_hours": 1.625,
+            "overrun_hours": 1.625,
+            "underrun_hours": 0.0,
+            "inefficiency_share": 0.35135135135135137
+          },
+          {
+            "task_id": "T014",
+            "task_class": "B",
+            "expected_time_hours": 4.7250000000000005,
+            "actual_time_hours": 5.9,
+            "time_delta_hours": 1.1749999999999998,
+            "overrun_hours": 1.1749999999999998,
+            "underrun_hours": 0.0,
+            "inefficiency_share": 0.254054054054054
+          },
+          {
+            "task_id": "T020",
+            "task_class": "B",
+            "expected_time_hours": 5.075,
+            "actual_time_hours": 6.0,
+            "time_delta_hours": 0.9249999999999998,
+            "overrun_hours": 0.9249999999999998,
+            "underrun_hours": 0.0,
+            "inefficiency_share": 0.19999999999999996
+          },
+          {
+            "task_id": "T016",
+            "task_class": "A",
+            "expected_time_hours": 2.5,
+            "actual_time_hours": 2.9,
+            "time_delta_hours": 0.3999999999999999,
+            "overrun_hours": 0.3999999999999999,
+            "underrun_hours": 0.0,
+            "inefficiency_share": 0.08648648648648646
+          },
+          {
+            "task_id": "T021",
+            "task_class": "A",
+            "expected_time_hours": 2.0,
+            "actual_time_hours": 2.3,
+            "time_delta_hours": 0.2999999999999998,
+            "overrun_hours": 0.2999999999999998,
+            "underrun_hours": 0.0,
+            "inefficiency_share": 0.06486486486486483
+          },
+          {
+            "task_id": "T019",
+            "task_class": "A",
+            "expected_time_hours": 2.3,
+            "actual_time_hours": 2.5,
+            "time_delta_hours": 0.20000000000000018,
+            "overrun_hours": 0.20000000000000018,
+            "underrun_hours": 0.0,
+            "inefficiency_share": 0.04324324324324328
+          },
+          {
+            "task_id": "T018",
+            "task_class": "C",
+            "expected_time_hours": 9.3,
+            "actual_time_hours": 8.9,
+            "time_delta_hours": -0.40000000000000036,
+            "overrun_hours": 0.0,
+            "underrun_hours": 0.40000000000000036,
+            "inefficiency_share": 0.0
+          },
+          {
+            "task_id": "T022",
+            "task_class": "C",
+            "expected_time_hours": 8.399999999999999,
+            "actual_time_hours": 7.5,
+            "time_delta_hours": -0.8999999999999986,
+            "overrun_hours": 0.0,
+            "underrun_hours": 0.8999999999999986,
+            "inefficiency_share": 0.0
+          },
+          {
+            "task_id": "T015",
+            "task_class": "C",
+            "expected_time_hours": 10.2,
+            "actual_time_hours": 9.0,
+            "time_delta_hours": -1.1999999999999993,
+            "overrun_hours": 0.0,
+            "underrun_hours": 1.1999999999999993,
+            "inefficiency_share": 0.0
+          }
+        ],
+        "largest_overruns": [
+          {
+            "task_id": "T017",
+            "task_class": "B",
+            "expected_time_hours": 4.375,
+            "actual_time_hours": 6.0,
+            "time_delta_hours": 1.625,
+            "overrun_hours": 1.625,
+            "underrun_hours": 0.0,
+            "inefficiency_share": 0.35135135135135137
+          },
+          {
+            "task_id": "T014",
+            "task_class": "B",
+            "expected_time_hours": 4.7250000000000005,
+            "actual_time_hours": 5.9,
+            "time_delta_hours": 1.1749999999999998,
+            "overrun_hours": 1.1749999999999998,
+            "underrun_hours": 0.0,
+            "inefficiency_share": 0.254054054054054
+          },
+          {
+            "task_id": "T020",
+            "task_class": "B",
+            "expected_time_hours": 5.075,
+            "actual_time_hours": 6.0,
+            "time_delta_hours": 0.9249999999999998,
+            "overrun_hours": 0.9249999999999998,
+            "underrun_hours": 0.0,
+            "inefficiency_share": 0.19999999999999996
+          },
+          {
+            "task_id": "T016",
+            "task_class": "A",
+            "expected_time_hours": 2.5,
+            "actual_time_hours": 2.9,
+            "time_delta_hours": 0.3999999999999999,
+            "overrun_hours": 0.3999999999999999,
+            "underrun_hours": 0.0,
+            "inefficiency_share": 0.08648648648648646
+          },
+          {
+            "task_id": "T021",
+            "task_class": "A",
+            "expected_time_hours": 2.0,
+            "actual_time_hours": 2.3,
+            "time_delta_hours": 0.2999999999999998,
+            "overrun_hours": 0.2999999999999998,
+            "underrun_hours": 0.0,
+            "inefficiency_share": 0.06486486486486483
+          }
+        ],
+        "largest_underruns": [
+          {
+            "task_id": "T015",
+            "task_class": "C",
+            "expected_time_hours": 10.2,
+            "actual_time_hours": 9.0,
+            "time_delta_hours": -1.1999999999999993,
+            "overrun_hours": 0.0,
+            "underrun_hours": 1.1999999999999993,
+            "inefficiency_share": 0.0
+          },
+          {
+            "task_id": "T022",
+            "task_class": "C",
+            "expected_time_hours": 8.399999999999999,
+            "actual_time_hours": 7.5,
+            "time_delta_hours": -0.8999999999999986,
+            "overrun_hours": 0.0,
+            "underrun_hours": 0.8999999999999986,
+            "inefficiency_share": 0.0
+          },
+          {
+            "task_id": "T018",
+            "task_class": "C",
+            "expected_time_hours": 9.3,
+            "actual_time_hours": 8.9,
+            "time_delta_hours": -0.40000000000000036,
+            "overrun_hours": 0.0,
+            "underrun_hours": 0.40000000000000036,
+            "inefficiency_share": 0.0
+          }
+        ],
+        "reconciliation": {
+          "total_expected_time": 48.875,
+          "total_actual_time": 51.0,
+          "total_time_delta_hours": 2.1250000000000013,
+          "total_overrun_hours": 4.625
+        }
+      },
+      "accuracy_attribution": {
+        "by_task": [
+          {
+            "task_id": "T018",
+            "task_class": "C",
+            "minor_errors": 2,
+            "major_errors": 2,
+            "weighted_errors": 4.0,
+            "minor_error_impact": 1.0,
+            "major_error_impact": 3.0,
+            "total_error_count": 4,
+            "accuracy_loss_share": 0.25,
+            "accuracy_score_impact": 0.4444444444444444
+          },
+          {
+            "task_id": "T015",
+            "task_class": "C",
+            "minor_errors": 2,
+            "major_errors": 1,
+            "weighted_errors": 2.5,
+            "minor_error_impact": 1.0,
+            "major_error_impact": 1.5,
+            "total_error_count": 3,
+            "accuracy_loss_share": 0.15625,
+            "accuracy_score_impact": 0.2777777777777778
+          },
+          {
+            "task_id": "T017",
+            "task_class": "B",
+            "minor_errors": 2,
+            "major_errors": 1,
+            "weighted_errors": 2.5,
+            "minor_error_impact": 1.0,
+            "major_error_impact": 1.5,
+            "total_error_count": 3,
+            "accuracy_loss_share": 0.15625,
+            "accuracy_score_impact": 0.2777777777777778
+          },
+          {
+            "task_id": "T014",
+            "task_class": "B",
+            "minor_errors": 1,
+            "major_errors": 1,
+            "weighted_errors": 2.0,
+            "minor_error_impact": 0.5,
+            "major_error_impact": 1.5,
+            "total_error_count": 2,
+            "accuracy_loss_share": 0.125,
+            "accuracy_score_impact": 0.2222222222222222
+          },
+          {
+            "task_id": "T020",
+            "task_class": "B",
+            "minor_errors": 1,
+            "major_errors": 1,
+            "weighted_errors": 2.0,
+            "minor_error_impact": 0.5,
+            "major_error_impact": 1.5,
+            "total_error_count": 2,
+            "accuracy_loss_share": 0.125,
+            "accuracy_score_impact": 0.2222222222222222
+          },
+          {
+            "task_id": "T022",
+            "task_class": "C",
+            "minor_errors": 1,
+            "major_errors": 1,
+            "weighted_errors": 2.0,
+            "minor_error_impact": 0.5,
+            "major_error_impact": 1.5,
+            "total_error_count": 2,
+            "accuracy_loss_share": 0.125,
+            "accuracy_score_impact": 0.2222222222222222
+          },
+          {
+            "task_id": "T016",
+            "task_class": "A",
+            "minor_errors": 1,
+            "major_errors": 0,
+            "weighted_errors": 0.5,
+            "minor_error_impact": 0.5,
+            "major_error_impact": 0.0,
+            "total_error_count": 1,
+            "accuracy_loss_share": 0.03125,
+            "accuracy_score_impact": 0.05555555555555555
+          },
+          {
+            "task_id": "T019",
+            "task_class": "A",
+            "minor_errors": 1,
+            "major_errors": 0,
+            "weighted_errors": 0.5,
+            "minor_error_impact": 0.5,
+            "major_error_impact": 0.0,
+            "total_error_count": 1,
+            "accuracy_loss_share": 0.03125,
+            "accuracy_score_impact": 0.05555555555555555
+          },
+          {
+            "task_id": "T021",
+            "task_class": "A",
+            "minor_errors": 0,
+            "major_errors": 0,
+            "weighted_errors": 0.0,
+            "minor_error_impact": 0.0,
+            "major_error_impact": 0.0,
+            "total_error_count": 0,
+            "accuracy_loss_share": 0.0,
+            "accuracy_score_impact": 0.0
+          }
+        ],
+        "top_error_drivers": [
+          {
+            "task_id": "T018",
+            "task_class": "C",
+            "minor_errors": 2,
+            "major_errors": 2,
+            "weighted_errors": 4.0,
+            "minor_error_impact": 1.0,
+            "major_error_impact": 3.0,
+            "total_error_count": 4,
+            "accuracy_loss_share": 0.25,
+            "accuracy_score_impact": 0.4444444444444444
+          },
+          {
+            "task_id": "T015",
+            "task_class": "C",
+            "minor_errors": 2,
+            "major_errors": 1,
+            "weighted_errors": 2.5,
+            "minor_error_impact": 1.0,
+            "major_error_impact": 1.5,
+            "total_error_count": 3,
+            "accuracy_loss_share": 0.15625,
+            "accuracy_score_impact": 0.2777777777777778
+          },
+          {
+            "task_id": "T017",
+            "task_class": "B",
+            "minor_errors": 2,
+            "major_errors": 1,
+            "weighted_errors": 2.5,
+            "minor_error_impact": 1.0,
+            "major_error_impact": 1.5,
+            "total_error_count": 3,
+            "accuracy_loss_share": 0.15625,
+            "accuracy_score_impact": 0.2777777777777778
+          },
+          {
+            "task_id": "T014",
+            "task_class": "B",
+            "minor_errors": 1,
+            "major_errors": 1,
+            "weighted_errors": 2.0,
+            "minor_error_impact": 0.5,
+            "major_error_impact": 1.5,
+            "total_error_count": 2,
+            "accuracy_loss_share": 0.125,
+            "accuracy_score_impact": 0.2222222222222222
+          },
+          {
+            "task_id": "T020",
+            "task_class": "B",
+            "minor_errors": 1,
+            "major_errors": 1,
+            "weighted_errors": 2.0,
+            "minor_error_impact": 0.5,
+            "major_error_impact": 1.5,
+            "total_error_count": 2,
+            "accuracy_loss_share": 0.125,
+            "accuracy_score_impact": 0.2222222222222222
+          }
+        ],
+        "by_severity": [
+          {
+            "severity": "minor",
+            "error_count": 11,
+            "weighted_error_impact": 5.5,
+            "accuracy_score_impact": 0.6111111111111112
+          },
+          {
+            "severity": "major",
+            "error_count": 7,
+            "weighted_error_impact": 10.5,
+            "accuracy_score_impact": 1.1666666666666667
+          }
+        ],
+        "reconciliation": {
+          "total_weighted_errors": 16.0,
+          "total_tasks": 9,
+          "accuracy_loss": 1.7777777777777777
+        }
+      },
+      "contribution_attribution": {
+        "positive_by_type": [
+          {
+            "flag_type": "helped_peer",
+            "flag_count": 4,
+            "modifier_effect": 0.06
+          },
+          {
+            "flag_type": "proactive_update",
+            "flag_count": 3,
+            "modifier_effect": 0.045
+          }
+        ],
+        "negative_by_type": [
+          {
+            "flag_type": "blocked_escalated_late",
+            "flag_count": 6,
+            "modifier_effect": -0.12
+          },
+          {
+            "flag_type": "rework_requested",
+            "flag_count": 6,
+            "modifier_effect": -0.12
+          }
+        ],
+        "raw_positive_effect": 0.105,
+        "raw_negative_effect": -0.24,
+        "raw_modifier_before_cap": 0.865,
+        "final_modifier_after_cap": 0.9,
+        "cap_applied": true,
+        "reconciliation": {
+          "positive_flags": 7,
+          "negative_flags": 12
+        }
+      },
+      "overall_attribution": {
+        "top_positive_driver": {
+          "driver": "highest_output_task",
+          "label": "T015",
+          "value": 3.4,
+          "detail": "T015 contributed 3.4 output points."
+        },
+        "top_negative_driver": {
+          "driver": "largest_error_driver",
+          "label": "T018",
+          "value": 4.0,
+          "detail": "T018 added 4.0 weighted errors."
+        },
+        "category_driver": {
+          "component": "accuracy_score",
+          "value": -0.7777777777777777,
+          "category": "Risk"
+        },
+        "summary_lines": [
+          "Most improved: T015 contributed 3.4 output points.",
+          "Most harmed: T018 added 4.0 weighted errors.",
+          "Category influence: accuracy_score is the lowest component at -0.7777777777777777.",
+          "Final score reconciliation: 18.1675 output x -0.6708333333333333 performance index = -12.187364583333332."
+        ]
+      }
+    },
+    "task_metrics": [
+      {
+        "task_id": "T014",
+        "intern_id": "INT003",
+        "period": "W1",
+        "task_class": "B",
+        "multi_state": 1,
+        "investments": 1,
+        "rental": 0,
+        "k1": 0,
+        "timer_start": "2026-02-10 09:05:00",
+        "timer_end": "2026-02-10 14:59:00",
+        "timer_running": 0,
+        "actual_time_hours": 5.9,
+        "minor_errors": 1,
+        "major_errors": 1,
+        "completed_at": "2026-02-10 14:59:00",
+        "class_name": "Standard Individual Return",
+        "base_class_weight": 1.35,
+        "base_expected_hours": 3.5,
+        "adjustment_add": 0.35,
+        "adjustment_multiplier": 1.35,
+        "expected_time_hours": 4.7250000000000005,
+        "task_output": 1.8225000000000002,
+        "efficiency_ratio_raw": 0.8008474576271187,
+        "efficiency_ratio_capped": 0.8008474576271187,
+        "weighted_errors": 2.0,
+        "active_adjustments": "multi_state, investments"
+      },
+      {
+        "task_id": "T015",
+        "intern_id": "INT003",
+        "period": "W1",
+        "task_class": "C",
+        "multi_state": 1,
+        "investments": 1,
+        "rental": 1,
+        "k1": 1,
+        "timer_start": "2026-02-11 08:50:00",
+        "timer_end": "2026-02-11 17:50:00",
+        "timer_running": 0,
+        "actual_time_hours": 9.0,
+        "minor_errors": 2,
+        "major_errors": 1,
+        "completed_at": "2026-02-11 17:50:00",
+        "class_name": "Complex Individual Return",
+        "base_class_weight": 2.0,
+        "base_expected_hours": 6.0,
+        "adjustment_add": 0.7,
+        "adjustment_multiplier": 1.7,
+        "expected_time_hours": 10.2,
+        "task_output": 3.4,
+        "efficiency_ratio_raw": 1.1333333333333333,
+        "efficiency_ratio_capped": 1.1333333333333333,
+        "weighted_errors": 2.5,
+        "active_adjustments": "multi_state, investments, rental, k1"
+      },
+      {
+        "task_id": "T016",
+        "intern_id": "INT003",
+        "period": "W1",
+        "task_class": "A",
+        "multi_state": 0,
+        "investments": 0,
+        "rental": 0,
+        "k1": 1,
+        "timer_start": "2026-02-12 09:10:00",
+        "timer_end": "2026-02-12 12:04:00",
+        "timer_running": 0,
+        "actual_time_hours": 2.9,
+        "minor_errors": 1,
+        "major_errors": 0,
+        "completed_at": "2026-02-12 12:04:00",
+        "class_name": "Simple Individual Return",
+        "base_class_weight": 1.0,
+        "base_expected_hours": 2.0,
+        "adjustment_add": 0.25,
+        "adjustment_multiplier": 1.25,
+        "expected_time_hours": 2.5,
+        "task_output": 1.25,
+        "efficiency_ratio_raw": 0.8620689655172414,
+        "efficiency_ratio_capped": 0.8620689655172414,
+        "weighted_errors": 0.5,
+        "active_adjustments": "k1"
+      },
+      {
+        "task_id": "T017",
+        "intern_id": "INT003",
+        "period": "W2",
+        "task_class": "B",
+        "multi_state": 0,
+        "investments": 1,
+        "rental": 1,
+        "k1": 0,
+        "timer_start": "2026-02-17 09:15:00",
+        "timer_end": "2026-02-17 15:15:00",
+        "timer_running": 0,
+        "actual_time_hours": 6.0,
+        "minor_errors": 2,
+        "major_errors": 1,
+        "completed_at": "2026-02-17 15:15:00",
+        "class_name": "Standard Individual Return",
+        "base_class_weight": 1.35,
+        "base_expected_hours": 3.5,
+        "adjustment_add": 0.25,
+        "adjustment_multiplier": 1.25,
+        "expected_time_hours": 4.375,
+        "task_output": 1.6875,
+        "efficiency_ratio_raw": 0.7291666666666666,
+        "efficiency_ratio_capped": 0.7291666666666666,
+        "weighted_errors": 2.5,
+        "active_adjustments": "investments, rental"
+      },
+      {
+        "task_id": "T018",
+        "intern_id": "INT003",
+        "period": "W2",
+        "task_class": "C",
+        "multi_state": 1,
+        "investments": 0,
+        "rental": 1,
+        "k1": 1,
+        "timer_start": "2026-02-18 08:40:00",
+        "timer_end": "2026-02-18 17:34:00",
+        "timer_running": 0,
+        "actual_time_hours": 8.9,
+        "minor_errors": 2,
+        "major_errors": 2,
+        "completed_at": "2026-02-18 17:34:00",
+        "class_name": "Complex Individual Return",
+        "base_class_weight": 2.0,
+        "base_expected_hours": 6.0,
+        "adjustment_add": 0.55,
+        "adjustment_multiplier": 1.55,
+        "expected_time_hours": 9.3,
+        "task_output": 3.1,
+        "efficiency_ratio_raw": 1.0449438202247192,
+        "efficiency_ratio_capped": 1.0449438202247192,
+        "weighted_errors": 4.0,
+        "active_adjustments": "multi_state, rental, k1"
+      },
+      {
+        "task_id": "T019",
+        "intern_id": "INT003",
+        "period": "W3",
+        "task_class": "A",
+        "multi_state": 0,
+        "investments": 1,
+        "rental": 0,
+        "k1": 0,
+        "timer_start": "2026-02-24 09:00:00",
+        "timer_end": "2026-02-24 11:30:00",
+        "timer_running": 0,
+        "actual_time_hours": 2.5,
+        "minor_errors": 1,
+        "major_errors": 0,
+        "completed_at": "2026-02-24 11:30:00",
+        "class_name": "Simple Individual Return",
+        "base_class_weight": 1.0,
+        "base_expected_hours": 2.0,
+        "adjustment_add": 0.15,
+        "adjustment_multiplier": 1.15,
+        "expected_time_hours": 2.3,
+        "task_output": 1.15,
+        "efficiency_ratio_raw": 0.9199999999999999,
+        "efficiency_ratio_capped": 0.9199999999999999,
+        "weighted_errors": 0.5,
+        "active_adjustments": "investments"
+      },
+      {
+        "task_id": "T020",
+        "intern_id": "INT003",
+        "period": "W3",
+        "task_class": "B",
+        "multi_state": 1,
+        "investments": 0,
+        "rental": 0,
+        "k1": 1,
+        "timer_start": "2026-02-25 09:25:00",
+        "timer_end": "2026-02-25 15:25:00",
+        "timer_running": 0,
+        "actual_time_hours": 6.0,
+        "minor_errors": 1,
+        "major_errors": 1,
+        "completed_at": "2026-02-25 15:25:00",
+        "class_name": "Standard Individual Return",
+        "base_class_weight": 1.35,
+        "base_expected_hours": 3.5,
+        "adjustment_add": 0.45,
+        "adjustment_multiplier": 1.45,
+        "expected_time_hours": 5.075,
+        "task_output": 1.9575,
+        "efficiency_ratio_raw": 0.8458333333333333,
+        "efficiency_ratio_capped": 0.8458333333333333,
+        "weighted_errors": 2.0,
+        "active_adjustments": "multi_state, k1"
+      },
+      {
+        "task_id": "T021",
+        "intern_id": "INT003",
+        "period": "W4",
+        "task_class": "A",
+        "multi_state": 0,
+        "investments": 0,
+        "rental": 0,
+        "k1": 0,
+        "timer_start": "2026-03-03 09:30:00",
+        "timer_end": "2026-03-03 11:48:00",
+        "timer_running": 0,
+        "actual_time_hours": 2.3,
+        "minor_errors": 0,
+        "major_errors": 0,
+        "completed_at": "2026-03-03 11:48:00",
+        "class_name": "Simple Individual Return",
+        "base_class_weight": 1.0,
+        "base_expected_hours": 2.0,
+        "adjustment_add": 0.0,
+        "adjustment_multiplier": 1.0,
+        "expected_time_hours": 2.0,
+        "task_output": 1.0,
+        "efficiency_ratio_raw": 0.8695652173913044,
+        "efficiency_ratio_capped": 0.8695652173913044,
+        "weighted_errors": 0.0,
+        "active_adjustments": "None"
+      },
+      {
+        "task_id": "T022",
+        "intern_id": "INT003",
+        "period": "W4",
+        "task_class": "C",
+        "multi_state": 0,
+        "investments": 1,
+        "rental": 0,
+        "k1": 1,
+        "timer_start": "2026-03-04 08:55:00",
+        "timer_end": "2026-03-04 16:25:00",
+        "timer_running": 0,
+        "actual_time_hours": 7.5,
+        "minor_errors": 1,
+        "major_errors": 1,
+        "completed_at": "2026-03-04 16:25:00",
+        "class_name": "Complex Individual Return",
+        "base_class_weight": 2.0,
+        "base_expected_hours": 6.0,
+        "adjustment_add": 0.4,
+        "adjustment_multiplier": 1.4,
+        "expected_time_hours": 8.399999999999999,
+        "task_output": 2.8,
+        "efficiency_ratio_raw": 1.1199999999999999,
+        "efficiency_ratio_capped": 1.1199999999999999,
+        "weighted_errors": 2.0,
+        "active_adjustments": "investments, k1"
+      }
+    ]
+  },
+  "INT004": {
+    "summary": {
+      "intern_id": "INT004",
+      "total_tasks": 4,
+      "output_score": 6.485,
+      "total_expected_time": 16.65,
+      "total_actual_time": 16.1,
+      "efficiency_score": 1.0342,
+      "total_weighted_errors": 2.0,
+      "accuracy_score": 0.5,
+      "contribution_modifier": 1.01,
+      "performance_index": 0.5223,
+      "final_score": 3.3868,
+      "performance_category": "Risk",
+      "positive_flags": 2,
+      "negative_flags": 1,
+      "diagnostics": {
+        "efficiency_diagnostic": "Time performance is near expected levels.",
+        "accuracy_diagnostic": "Quality risk: error rate is materially affecting performance.",
+        "contribution_diagnostic": "Constructive contribution pattern: positive flags exceed negative flags.",
+        "overall_diagnostic": "Overall performance risk is primarily quality-driven."
+      }
+    },
+    "attribution": {
+      "output_attribution": {
+        "by_task": [
+          {
+            "task_id": "T025",
+            "task_class": "C",
+            "class_name": "Complex Individual Return",
+            "base_class_weight": 2.0,
+            "adjustment_multiplier": 1.4,
+            "task_output": 2.8,
+            "output_share": 0.43176561295296834
+          },
+          {
+            "task_id": "T024",
+            "task_class": "B",
+            "class_name": "Standard Individual Return",
+            "base_class_weight": 1.35,
+            "adjustment_multiplier": 1.1,
+            "task_output": 1.4850000000000003,
+            "output_share": 0.22898997686969935
+          },
+          {
+            "task_id": "T026",
+            "task_class": "A",
+            "class_name": "Simple Individual Return",
+            "base_class_weight": 1.0,
+            "adjustment_multiplier": 1.2,
+            "task_output": 1.2,
+            "output_share": 0.18504240555127216
+          },
+          {
+            "task_id": "T023",
+            "task_class": "A",
+            "class_name": "Simple Individual Return",
+            "base_class_weight": 1.0,
+            "adjustment_multiplier": 1.0,
+            "task_output": 1.0,
+            "output_share": 0.15420200462606012
+          }
+        ],
+        "by_class": [
+          {
+            "task_class": "C",
+            "class_name": "Complex Individual Return",
+            "task_count": 1,
+            "output_contribution": 2.8,
+            "output_share": 0.43176561295296834
+          },
+          {
+            "task_class": "A",
+            "class_name": "Simple Individual Return",
+            "task_count": 2,
+            "output_contribution": 2.2,
+            "output_share": 0.3392444101773323
+          },
+          {
+            "task_class": "B",
+            "class_name": "Standard Individual Return",
+            "task_count": 1,
+            "output_contribution": 1.4850000000000003,
+            "output_share": 0.22898997686969935
+          }
+        ],
+        "by_adjustment": [
+          {
+            "adjustment_code": "investments",
+            "label": "Investment Activity",
+            "task_count": 1,
+            "multiplier_add": 0.15,
+            "output_effect": 0.3,
+            "output_effect_share": 0.04626060138781804
+          },
+          {
+            "adjustment_code": "k1",
+            "label": "K-1 or Pass-Through Activity",
+            "task_count": 1,
+            "multiplier_add": 0.25,
+            "output_effect": 0.5,
+            "output_effect_share": 0.07710100231303006
+          },
+          {
+            "adjustment_code": "multi_state",
+            "label": "Multi-State Filing",
+            "task_count": 1,
+            "multiplier_add": 0.2,
+            "output_effect": 0.2,
+            "output_effect_share": 0.03084040092521203
+          },
+          {
+            "adjustment_code": "rental",
+            "label": "Rental Property",
+            "task_count": 1,
+            "multiplier_add": 0.1,
+            "output_effect": 0.135,
+            "output_effect_share": 0.02081727062451812
+          }
+        ],
+        "reconciliation": {
+          "base_output_without_adjustments": 5.35,
+          "adjustment_output_effect": 1.135,
+          "total_output": 6.485
+        }
+      },
+      "efficiency_attribution": {
+        "by_task": [
+          {
+            "task_id": "T024",
+            "task_class": "B",
+            "expected_time_hours": 3.8500000000000005,
+            "actual_time_hours": 4.4,
+            "time_delta_hours": 0.5499999999999998,
+            "overrun_hours": 0.5499999999999998,
+            "underrun_hours": 0.0,
+            "inefficiency_share": 1.0
+          },
+          {
+            "task_id": "T023",
+            "task_class": "A",
+            "expected_time_hours": 2.0,
+            "actual_time_hours": 2.0,
+            "time_delta_hours": 0.0,
+            "overrun_hours": 0.0,
+            "underrun_hours": -0.0,
+            "inefficiency_share": 0.0
+          },
+          {
+            "task_id": "T026",
+            "task_class": "A",
+            "expected_time_hours": 2.4,
+            "actual_time_hours": 2.4,
+            "time_delta_hours": 0.0,
+            "overrun_hours": 0.0,
+            "underrun_hours": -0.0,
+            "inefficiency_share": 0.0
+          },
+          {
+            "task_id": "T025",
+            "task_class": "C",
+            "expected_time_hours": 8.399999999999999,
+            "actual_time_hours": 7.3,
+            "time_delta_hours": -1.0999999999999988,
+            "overrun_hours": 0.0,
+            "underrun_hours": 1.0999999999999988,
+            "inefficiency_share": 0.0
+          }
+        ],
+        "largest_overruns": [
+          {
+            "task_id": "T024",
+            "task_class": "B",
+            "expected_time_hours": 3.8500000000000005,
+            "actual_time_hours": 4.4,
+            "time_delta_hours": 0.5499999999999998,
+            "overrun_hours": 0.5499999999999998,
+            "underrun_hours": 0.0,
+            "inefficiency_share": 1.0
+          }
+        ],
+        "largest_underruns": [
+          {
+            "task_id": "T025",
+            "task_class": "C",
+            "expected_time_hours": 8.399999999999999,
+            "actual_time_hours": 7.3,
+            "time_delta_hours": -1.0999999999999988,
+            "overrun_hours": 0.0,
+            "underrun_hours": 1.0999999999999988,
+            "inefficiency_share": 0.0
+          }
+        ],
+        "reconciliation": {
+          "total_expected_time": 16.65,
+          "total_actual_time": 16.099999999999998,
+          "total_time_delta_hours": -0.5499999999999989,
+          "total_overrun_hours": 0.5499999999999998
+        }
+      },
+      "accuracy_attribution": {
+        "by_task": [
+          {
+            "task_id": "T024",
+            "task_class": "B",
+            "minor_errors": 0,
+            "major_errors": 1,
+            "weighted_errors": 1.5,
+            "minor_error_impact": 0.0,
+            "major_error_impact": 1.5,
+            "total_error_count": 1,
+            "accuracy_loss_share": 0.75,
+            "accuracy_score_impact": 0.375
+          },
+          {
+            "task_id": "T026",
+            "task_class": "A",
+            "minor_errors": 1,
+            "major_errors": 0,
+            "weighted_errors": 0.5,
+            "minor_error_impact": 0.5,
+            "major_error_impact": 0.0,
+            "total_error_count": 1,
+            "accuracy_loss_share": 0.25,
+            "accuracy_score_impact": 0.125
+          },
+          {
+            "task_id": "T023",
+            "task_class": "A",
+            "minor_errors": 0,
+            "major_errors": 0,
+            "weighted_errors": 0.0,
+            "minor_error_impact": 0.0,
+            "major_error_impact": 0.0,
+            "total_error_count": 0,
+            "accuracy_loss_share": 0.0,
+            "accuracy_score_impact": 0.0
+          },
+          {
+            "task_id": "T025",
+            "task_class": "C",
+            "minor_errors": 0,
+            "major_errors": 0,
+            "weighted_errors": 0.0,
+            "minor_error_impact": 0.0,
+            "major_error_impact": 0.0,
+            "total_error_count": 0,
+            "accuracy_loss_share": 0.0,
+            "accuracy_score_impact": 0.0
+          }
+        ],
+        "top_error_drivers": [
+          {
+            "task_id": "T024",
+            "task_class": "B",
+            "minor_errors": 0,
+            "major_errors": 1,
+            "weighted_errors": 1.5,
+            "minor_error_impact": 0.0,
+            "major_error_impact": 1.5,
+            "total_error_count": 1,
+            "accuracy_loss_share": 0.75,
+            "accuracy_score_impact": 0.375
+          },
+          {
+            "task_id": "T026",
+            "task_class": "A",
+            "minor_errors": 1,
+            "major_errors": 0,
+            "weighted_errors": 0.5,
+            "minor_error_impact": 0.5,
+            "major_error_impact": 0.0,
+            "total_error_count": 1,
+            "accuracy_loss_share": 0.25,
+            "accuracy_score_impact": 0.125
+          }
+        ],
+        "by_severity": [
+          {
+            "severity": "minor",
+            "error_count": 1,
+            "weighted_error_impact": 0.5,
+            "accuracy_score_impact": 0.125
+          },
+          {
+            "severity": "major",
+            "error_count": 1,
+            "weighted_error_impact": 1.5,
+            "accuracy_score_impact": 0.375
+          }
+        ],
+        "reconciliation": {
+          "total_weighted_errors": 2.0,
+          "total_tasks": 4,
+          "accuracy_loss": 0.5
+        }
+      },
+      "contribution_attribution": {
+        "positive_by_type": [
+          {
+            "flag_type": "helped_peer",
+            "flag_count": 1,
+            "modifier_effect": 0.015
+          },
+          {
+            "flag_type": "proactive_update",
+            "flag_count": 1,
+            "modifier_effect": 0.015
+          }
+        ],
+        "negative_by_type": [
+          {
+            "flag_type": "blocked_escalated_late",
+            "flag_count": 1,
+            "modifier_effect": -0.02
+          }
+        ],
+        "raw_positive_effect": 0.03,
+        "raw_negative_effect": -0.02,
+        "raw_modifier_before_cap": 1.01,
+        "final_modifier_after_cap": 1.01,
+        "cap_applied": false,
+        "reconciliation": {
+          "positive_flags": 2,
+          "negative_flags": 1
+        }
+      },
+      "overall_attribution": {
+        "top_positive_driver": {
+          "driver": "highest_output_task",
+          "label": "T025",
+          "value": 2.8,
+          "detail": "T025 contributed 2.8 output points."
+        },
+        "top_negative_driver": {
+          "driver": "largest_error_driver",
+          "label": "T024",
+          "value": 1.5,
+          "detail": "T024 added 1.5 weighted errors."
+        },
+        "category_driver": {
+          "component": "accuracy_score",
+          "value": 0.5,
+          "category": "Risk"
+        },
+        "summary_lines": [
+          "Most improved: T025 contributed 2.8 output points.",
+          "Most harmed: T024 added 1.5 weighted errors.",
+          "Category influence: accuracy_score is the lowest component at 0.5.",
+          "Final score reconciliation: 6.485 output x 0.5222515527950311 performance index = 3.3868013198757767."
+        ]
+      }
+    },
+    "task_metrics": [
+      {
+        "task_id": "T023",
+        "intern_id": "INT004",
+        "period": "W1",
+        "task_class": "A",
+        "multi_state": 0,
+        "investments": 0,
+        "rental": 0,
+        "k1": 0,
+        "timer_start": "2026-02-10 10:10:00",
+        "timer_end": "2026-02-10 12:10:00",
+        "timer_running": 0,
+        "actual_time_hours": 2.0,
+        "minor_errors": 0,
+        "major_errors": 0,
+        "completed_at": "2026-02-10 12:10:00",
+        "class_name": "Simple Individual Return",
+        "base_class_weight": 1.0,
+        "base_expected_hours": 2.0,
+        "adjustment_add": 0.0,
+        "adjustment_multiplier": 1.0,
+        "expected_time_hours": 2.0,
+        "task_output": 1.0,
+        "efficiency_ratio_raw": 1.0,
+        "efficiency_ratio_capped": 1.0,
+        "weighted_errors": 0.0,
+        "active_adjustments": "None"
+      },
+      {
+        "task_id": "T024",
+        "intern_id": "INT004",
+        "period": "W2",
+        "task_class": "B",
+        "multi_state": 0,
+        "investments": 0,
+        "rental": 1,
+        "k1": 0,
+        "timer_start": "2026-02-18 10:05:00",
+        "timer_end": "2026-02-18 14:29:00",
+        "timer_running": 0,
+        "actual_time_hours": 4.4,
+        "minor_errors": 0,
+        "major_errors": 1,
+        "completed_at": "2026-02-18 14:29:00",
+        "class_name": "Standard Individual Return",
+        "base_class_weight": 1.35,
+        "base_expected_hours": 3.5,
+        "adjustment_add": 0.1,
+        "adjustment_multiplier": 1.1,
+        "expected_time_hours": 3.8500000000000005,
+        "task_output": 1.4850000000000003,
+        "efficiency_ratio_raw": 0.875,
+        "efficiency_ratio_capped": 0.875,
+        "weighted_errors": 1.5,
+        "active_adjustments": "rental"
+      },
+      {
+        "task_id": "T025",
+        "intern_id": "INT004",
+        "period": "W3",
+        "task_class": "C",
+        "multi_state": 0,
+        "investments": 1,
+        "rental": 0,
+        "k1": 1,
+        "timer_start": "2026-02-24 09:30:00",
+        "timer_end": "2026-02-24 16:48:00",
+        "timer_running": 0,
+        "actual_time_hours": 7.3,
+        "minor_errors": 0,
+        "major_errors": 0,
+        "completed_at": "2026-02-24 16:48:00",
+        "class_name": "Complex Individual Return",
+        "base_class_weight": 2.0,
+        "base_expected_hours": 6.0,
+        "adjustment_add": 0.4,
+        "adjustment_multiplier": 1.4,
+        "expected_time_hours": 8.399999999999999,
+        "task_output": 2.8,
+        "efficiency_ratio_raw": 1.1506849315068493,
+        "efficiency_ratio_capped": 1.1506849315068493,
+        "weighted_errors": 0.0,
+        "active_adjustments": "investments, k1"
+      },
+      {
+        "task_id": "T026",
+        "intern_id": "INT004",
+        "period": "W4",
+        "task_class": "A",
+        "multi_state": 1,
+        "investments": 0,
+        "rental": 0,
+        "k1": 0,
+        "timer_start": "2026-03-03 10:00:00",
+        "timer_end": "2026-03-03 12:24:00",
+        "timer_running": 0,
+        "actual_time_hours": 2.4,
+        "minor_errors": 1,
+        "major_errors": 0,
+        "completed_at": "2026-03-03 12:24:00",
+        "class_name": "Simple Individual Return",
+        "base_class_weight": 1.0,
+        "base_expected_hours": 2.0,
+        "adjustment_add": 0.2,
+        "adjustment_multiplier": 1.2,
+        "expected_time_hours": 2.4,
+        "task_output": 1.2,
+        "efficiency_ratio_raw": 1.0,
+        "efficiency_ratio_capped": 1.0,
+        "weighted_errors": 0.5,
+        "active_adjustments": "multi_state"
+      }
+    ]
+  },
+  "INT005": {
+    "summary": {
+      "intern_id": "INT005",
+      "total_tasks": 6,
+      "output_score": 11.3575,
+      "total_expected_time": 30.575,
+      "total_actual_time": 29.3,
+      "efficiency_score": 1.0435,
+      "total_weighted_errors": 5.5,
+      "accuracy_score": 0.0833,
+      "contribution_modifier": 1.015,
+      "performance_index": 0.0883,
+      "final_score": 1.0025,
+      "performance_category": "Risk",
+      "positive_flags": 1,
+      "negative_flags": 0,
+      "diagnostics": {
+        "efficiency_diagnostic": "Time performance is near expected levels.",
+        "accuracy_diagnostic": "Quality risk: error rate is materially affecting performance.",
+        "contribution_diagnostic": "Constructive contribution pattern: positive flags exceed negative flags.",
+        "overall_diagnostic": "Overall performance risk is primarily quality-driven."
+      }
+    },
+    "attribution": {
+      "output_attribution": {
+        "by_task": [
+          {
+            "task_id": "T029",
+            "task_class": "C",
+            "class_name": "Complex Individual Return",
+            "base_class_weight": 2.0,
+            "adjustment_multiplier": 1.6,
+            "task_output": 3.2,
+            "output_share": 0.2817521461589258
+          },
+          {
+            "task_id": "T032",
+            "task_class": "C",
+            "class_name": "Complex Individual Return",
+            "base_class_weight": 2.0,
+            "adjustment_multiplier": 1.35,
+            "task_output": 2.7,
+            "output_share": 0.23772837332159363
+          },
+          {
+            "task_id": "T031",
+            "task_class": "B",
+            "class_name": "Standard Individual Return",
+            "base_class_weight": 1.35,
+            "adjustment_multiplier": 1.3,
+            "task_output": 1.7550000000000001,
+            "output_share": 0.15452344265903586
+          },
+          {
+            "task_id": "T028",
+            "task_class": "B",
+            "class_name": "Standard Individual Return",
+            "base_class_weight": 1.35,
+            "adjustment_multiplier": 1.15,
+            "task_output": 1.5525,
+            "output_share": 0.13669381465991634
+          },
+          {
+            "task_id": "T030",
+            "task_class": "A",
+            "class_name": "Simple Individual Return",
+            "base_class_weight": 1.0,
+            "adjustment_multiplier": 1.15,
+            "task_output": 1.15,
+            "output_share": 0.10125467752586394
+          },
+          {
+            "task_id": "T027",
+            "task_class": "A",
+            "class_name": "Simple Individual Return",
+            "base_class_weight": 1.0,
+            "adjustment_multiplier": 1.0,
+            "task_output": 1.0,
+            "output_share": 0.0880475456746643
+          }
+        ],
+        "by_class": [
+          {
+            "task_class": "C",
+            "class_name": "Complex Individual Return",
+            "task_count": 2,
+            "output_contribution": 5.9,
+            "output_share": 0.5194805194805194
+          },
+          {
+            "task_class": "B",
+            "class_name": "Standard Individual Return",
+            "task_count": 2,
+            "output_contribution": 3.3075,
+            "output_share": 0.2912172573189522
+          },
+          {
+            "task_class": "A",
+            "class_name": "Simple Individual Return",
+            "task_count": 2,
+            "output_contribution": 2.15,
+            "output_share": 0.18930222320052825
+          }
+        ],
+        "by_adjustment": [
+          {
+            "adjustment_code": "investments",
+            "label": "Investment Activity",
+            "task_count": 3,
+            "multiplier_add": 0.15,
+            "output_effect": 0.6525,
+            "output_effect_share": 0.05745102355271846
+          },
+          {
+            "adjustment_code": "k1",
+            "label": "K-1 or Pass-Through Activity",
+            "task_count": 2,
+            "multiplier_add": 0.25,
+            "output_effect": 1.0,
+            "output_effect_share": 0.0880475456746643
+          },
+          {
+            "adjustment_code": "multi_state",
+            "label": "Multi-State Filing",
+            "task_count": 2,
+            "multiplier_add": 0.2,
+            "output_effect": 0.67,
+            "output_effect_share": 0.058991855602025085
+          },
+          {
+            "adjustment_code": "rental",
+            "label": "Rental Property",
+            "task_count": 2,
+            "multiplier_add": 0.1,
+            "output_effect": 0.335,
+            "output_effect_share": 0.029495927801012543
+          }
+        ],
+        "reconciliation": {
+          "base_output_without_adjustments": 8.7,
+          "adjustment_output_effect": 2.6575,
+          "total_output": 11.357500000000002
+        }
+      },
+      "efficiency_attribution": {
+        "by_task": [
+          {
+            "task_id": "T031",
+            "task_class": "B",
+            "expected_time_hours": 4.55,
+            "actual_time_hours": 5.2,
+            "time_delta_hours": 0.6500000000000004,
+            "overrun_hours": 0.6500000000000004,
+            "underrun_hours": 0.0,
+            "inefficiency_share": 0.6341463414634145
+          },
+          {
+            "task_id": "T028",
+            "task_class": "B",
+            "expected_time_hours": 4.0249999999999995,
+            "actual_time_hours": 4.3,
+            "time_delta_hours": 0.27500000000000036,
+            "overrun_hours": 0.27500000000000036,
+            "underrun_hours": 0.0,
+            "inefficiency_share": 0.2682926829268294
+          },
+          {
+            "task_id": "T030",
+            "task_class": "A",
+            "expected_time_hours": 2.3,
+            "actual_time_hours": 2.4,
+            "time_delta_hours": 0.10000000000000009,
+            "overrun_hours": 0.10000000000000009,
+            "underrun_hours": 0.0,
+            "inefficiency_share": 0.09756097560975611
+          },
+          {
+            "task_id": "T027",
+            "task_class": "A",
+            "expected_time_hours": 2.0,
+            "actual_time_hours": 1.9,
+            "time_delta_hours": -0.10000000000000009,
+            "overrun_hours": 0.0,
+            "underrun_hours": 0.10000000000000009,
+            "inefficiency_share": 0.0
+          },
+          {
+            "task_id": "T032",
+            "task_class": "C",
+            "expected_time_hours": 8.100000000000001,
+            "actual_time_hours": 8.0,
+            "time_delta_hours": -0.10000000000000142,
+            "overrun_hours": 0.0,
+            "underrun_hours": 0.10000000000000142,
+            "inefficiency_share": 0.0
+          },
+          {
+            "task_id": "T029",
+            "task_class": "C",
+            "expected_time_hours": 9.600000000000001,
+            "actual_time_hours": 7.5,
+            "time_delta_hours": -2.1000000000000014,
+            "overrun_hours": 0.0,
+            "underrun_hours": 2.1000000000000014,
+            "inefficiency_share": 0.0
+          }
+        ],
+        "largest_overruns": [
+          {
+            "task_id": "T031",
+            "task_class": "B",
+            "expected_time_hours": 4.55,
+            "actual_time_hours": 5.2,
+            "time_delta_hours": 0.6500000000000004,
+            "overrun_hours": 0.6500000000000004,
+            "underrun_hours": 0.0,
+            "inefficiency_share": 0.6341463414634145
+          },
+          {
+            "task_id": "T028",
+            "task_class": "B",
+            "expected_time_hours": 4.0249999999999995,
+            "actual_time_hours": 4.3,
+            "time_delta_hours": 0.27500000000000036,
+            "overrun_hours": 0.27500000000000036,
+            "underrun_hours": 0.0,
+            "inefficiency_share": 0.2682926829268294
+          },
+          {
+            "task_id": "T030",
+            "task_class": "A",
+            "expected_time_hours": 2.3,
+            "actual_time_hours": 2.4,
+            "time_delta_hours": 0.10000000000000009,
+            "overrun_hours": 0.10000000000000009,
+            "underrun_hours": 0.0,
+            "inefficiency_share": 0.09756097560975611
+          }
+        ],
+        "largest_underruns": [
+          {
+            "task_id": "T029",
+            "task_class": "C",
+            "expected_time_hours": 9.600000000000001,
+            "actual_time_hours": 7.5,
+            "time_delta_hours": -2.1000000000000014,
+            "overrun_hours": 0.0,
+            "underrun_hours": 2.1000000000000014,
+            "inefficiency_share": 0.0
+          },
+          {
+            "task_id": "T032",
+            "task_class": "C",
+            "expected_time_hours": 8.100000000000001,
+            "actual_time_hours": 8.0,
+            "time_delta_hours": -0.10000000000000142,
+            "overrun_hours": 0.0,
+            "underrun_hours": 0.10000000000000142,
+            "inefficiency_share": 0.0
+          },
+          {
+            "task_id": "T027",
+            "task_class": "A",
+            "expected_time_hours": 2.0,
+            "actual_time_hours": 1.9,
+            "time_delta_hours": -0.10000000000000009,
+            "overrun_hours": 0.0,
+            "underrun_hours": 0.10000000000000009,
+            "inefficiency_share": 0.0
+          }
+        ],
+        "reconciliation": {
+          "total_expected_time": 30.575000000000003,
+          "total_actual_time": 29.299999999999997,
+          "total_time_delta_hours": -1.2750000000000021,
+          "total_overrun_hours": 1.0250000000000008
+        }
+      },
+      "accuracy_attribution": {
+        "by_task": [
+          {
+            "task_id": "T032",
+            "task_class": "C",
+            "minor_errors": 1,
+            "major_errors": 1,
+            "weighted_errors": 2.0,
+            "minor_error_impact": 0.5,
+            "major_error_impact": 1.5,
+            "total_error_count": 2,
+            "accuracy_loss_share": 0.36363636363636365,
+            "accuracy_score_impact": 0.3333333333333333
+          },
+          {
+            "task_id": "T029",
+            "task_class": "C",
+            "minor_errors": 0,
+            "major_errors": 1,
+            "weighted_errors": 1.5,
+            "minor_error_impact": 0.0,
+            "major_error_impact": 1.5,
+            "total_error_count": 1,
+            "accuracy_loss_share": 0.2727272727272727,
+            "accuracy_score_impact": 0.25
+          },
+          {
+            "task_id": "T031",
+            "task_class": "B",
+            "minor_errors": 2,
+            "major_errors": 0,
+            "weighted_errors": 1.0,
+            "minor_error_impact": 1.0,
+            "major_error_impact": 0.0,
+            "total_error_count": 2,
+            "accuracy_loss_share": 0.18181818181818182,
+            "accuracy_score_impact": 0.16666666666666666
+          },
+          {
+            "task_id": "T028",
+            "task_class": "B",
+            "minor_errors": 1,
+            "major_errors": 0,
+            "weighted_errors": 0.5,
+            "minor_error_impact": 0.5,
+            "major_error_impact": 0.0,
+            "total_error_count": 1,
+            "accuracy_loss_share": 0.09090909090909091,
+            "accuracy_score_impact": 0.08333333333333333
+          },
+          {
+            "task_id": "T030",
+            "task_class": "A",
+            "minor_errors": 1,
+            "major_errors": 0,
+            "weighted_errors": 0.5,
+            "minor_error_impact": 0.5,
+            "major_error_impact": 0.0,
+            "total_error_count": 1,
+            "accuracy_loss_share": 0.09090909090909091,
+            "accuracy_score_impact": 0.08333333333333333
+          },
+          {
+            "task_id": "T027",
+            "task_class": "A",
+            "minor_errors": 0,
+            "major_errors": 0,
+            "weighted_errors": 0.0,
+            "minor_error_impact": 0.0,
+            "major_error_impact": 0.0,
+            "total_error_count": 0,
+            "accuracy_loss_share": 0.0,
+            "accuracy_score_impact": 0.0
+          }
+        ],
+        "top_error_drivers": [
+          {
+            "task_id": "T032",
+            "task_class": "C",
+            "minor_errors": 1,
+            "major_errors": 1,
+            "weighted_errors": 2.0,
+            "minor_error_impact": 0.5,
+            "major_error_impact": 1.5,
+            "total_error_count": 2,
+            "accuracy_loss_share": 0.36363636363636365,
+            "accuracy_score_impact": 0.3333333333333333
+          },
+          {
+            "task_id": "T029",
+            "task_class": "C",
+            "minor_errors": 0,
+            "major_errors": 1,
+            "weighted_errors": 1.5,
+            "minor_error_impact": 0.0,
+            "major_error_impact": 1.5,
+            "total_error_count": 1,
+            "accuracy_loss_share": 0.2727272727272727,
+            "accuracy_score_impact": 0.25
+          },
+          {
+            "task_id": "T031",
+            "task_class": "B",
+            "minor_errors": 2,
+            "major_errors": 0,
+            "weighted_errors": 1.0,
+            "minor_error_impact": 1.0,
+            "major_error_impact": 0.0,
+            "total_error_count": 2,
+            "accuracy_loss_share": 0.18181818181818182,
+            "accuracy_score_impact": 0.16666666666666666
+          },
+          {
+            "task_id": "T028",
+            "task_class": "B",
+            "minor_errors": 1,
+            "major_errors": 0,
+            "weighted_errors": 0.5,
+            "minor_error_impact": 0.5,
+            "major_error_impact": 0.0,
+            "total_error_count": 1,
+            "accuracy_loss_share": 0.09090909090909091,
+            "accuracy_score_impact": 0.08333333333333333
+          },
+          {
+            "task_id": "T030",
+            "task_class": "A",
+            "minor_errors": 1,
+            "major_errors": 0,
+            "weighted_errors": 0.5,
+            "minor_error_impact": 0.5,
+            "major_error_impact": 0.0,
+            "total_error_count": 1,
+            "accuracy_loss_share": 0.09090909090909091,
+            "accuracy_score_impact": 0.08333333333333333
+          }
+        ],
+        "by_severity": [
+          {
+            "severity": "minor",
+            "error_count": 5,
+            "weighted_error_impact": 2.5,
+            "accuracy_score_impact": 0.4166666666666667
+          },
+          {
+            "severity": "major",
+            "error_count": 2,
+            "weighted_error_impact": 3.0,
+            "accuracy_score_impact": 0.5
+          }
+        ],
+        "reconciliation": {
+          "total_weighted_errors": 5.5,
+          "total_tasks": 6,
+          "accuracy_loss": 0.9166666666666666
+        }
+      },
+      "contribution_attribution": {
+        "positive_by_type": [
+          {
+            "flag_type": "helped_peer",
+            "flag_count": 1,
+            "modifier_effect": 0.015
+          }
+        ],
+        "negative_by_type": [],
+        "raw_positive_effect": 0.015,
+        "raw_negative_effect": -0.0,
+        "raw_modifier_before_cap": 1.015,
+        "final_modifier_after_cap": 1.015,
+        "cap_applied": false,
+        "reconciliation": {
+          "positive_flags": 1,
+          "negative_flags": 0
+        }
+      },
+      "overall_attribution": {
+        "top_positive_driver": {
+          "driver": "highest_output_task",
+          "label": "T029",
+          "value": 3.2,
+          "detail": "T029 contributed 3.2 output points."
+        },
+        "top_negative_driver": {
+          "driver": "largest_error_driver",
+          "label": "T032",
+          "value": 2.0,
+          "detail": "T032 added 2.0 weighted errors."
+        },
+        "category_driver": {
+          "component": "accuracy_score",
+          "value": 0.08333333333333337,
+          "category": "Risk"
+        },
+        "summary_lines": [
+          "Most improved: T029 contributed 3.2 output points.",
+          "Most harmed: T032 added 2.0 weighted errors.",
+          "Category influence: accuracy_score is the lowest component at 0.08333333333333337.",
+          "Final score reconciliation: 11.357500000000002 output x 0.08826400739476682 performance index = 1.0024584639860643."
+        ]
+      }
+    },
+    "task_metrics": [
+      {
+        "task_id": "T027",
+        "intern_id": "INT005",
+        "period": "W1",
+        "task_class": "A",
+        "multi_state": 0,
+        "investments": 0,
+        "rental": 0,
+        "k1": 0,
+        "timer_start": "2026-02-10 09:40:00",
+        "timer_end": "2026-02-10 11:34:00",
+        "timer_running": 0,
+        "actual_time_hours": 1.9,
+        "minor_errors": 0,
+        "major_errors": 0,
+        "completed_at": "2026-02-10 11:34:00",
+        "class_name": "Simple Individual Return",
+        "base_class_weight": 1.0,
+        "base_expected_hours": 2.0,
+        "adjustment_add": 0.0,
+        "adjustment_multiplier": 1.0,
+        "expected_time_hours": 2.0,
+        "task_output": 1.0,
+        "efficiency_ratio_raw": 1.0526315789473684,
+        "efficiency_ratio_capped": 1.0526315789473684,
+        "weighted_errors": 0.0,
+        "active_adjustments": "None"
+      },
+      {
+        "task_id": "T028",
+        "intern_id": "INT005",
+        "period": "W1",
+        "task_class": "B",
+        "multi_state": 0,
+        "investments": 1,
+        "rental": 0,
+        "k1": 0,
+        "timer_start": "2026-02-11 09:20:00",
+        "timer_end": "2026-02-11 13:38:00",
+        "timer_running": 0,
+        "actual_time_hours": 4.3,
+        "minor_errors": 1,
+        "major_errors": 0,
+        "completed_at": "2026-02-11 13:38:00",
+        "class_name": "Standard Individual Return",
+        "base_class_weight": 1.35,
+        "base_expected_hours": 3.5,
+        "adjustment_add": 0.15,
+        "adjustment_multiplier": 1.15,
+        "expected_time_hours": 4.0249999999999995,
+        "task_output": 1.5525,
+        "efficiency_ratio_raw": 0.9360465116279069,
+        "efficiency_ratio_capped": 0.9360465116279069,
+        "weighted_errors": 0.5,
+        "active_adjustments": "investments"
+      },
+      {
+        "task_id": "T029",
+        "intern_id": "INT005",
+        "period": "W2",
+        "task_class": "C",
+        "multi_state": 1,
+        "investments": 1,
+        "rental": 0,
+        "k1": 1,
+        "timer_start": "2026-02-17 09:00:00",
+        "timer_end": "2026-02-17 16:30:00",
+        "timer_running": 0,
+        "actual_time_hours": 7.5,
+        "minor_errors": 0,
+        "major_errors": 1,
+        "completed_at": "2026-02-17 16:30:00",
+        "class_name": "Complex Individual Return",
+        "base_class_weight": 2.0,
+        "base_expected_hours": 6.0,
+        "adjustment_add": 0.6,
+        "adjustment_multiplier": 1.6,
+        "expected_time_hours": 9.600000000000001,
+        "task_output": 3.2,
+        "efficiency_ratio_raw": 1.2800000000000002,
+        "efficiency_ratio_capped": 1.25,
+        "weighted_errors": 1.5,
+        "active_adjustments": "multi_state, investments, k1"
+      },
+      {
+        "task_id": "T030",
+        "intern_id": "INT005",
+        "period": "W2",
+        "task_class": "A",
+        "multi_state": 0,
+        "investments": 1,
+        "rental": 0,
+        "k1": 0,
+        "timer_start": "2026-02-18 09:50:00",
+        "timer_end": "2026-02-18 12:14:00",
+        "timer_running": 0,
+        "actual_time_hours": 2.4,
+        "minor_errors": 1,
+        "major_errors": 0,
+        "completed_at": "2026-02-18 12:14:00",
+        "class_name": "Simple Individual Return",
+        "base_class_weight": 1.0,
+        "base_expected_hours": 2.0,
+        "adjustment_add": 0.15,
+        "adjustment_multiplier": 1.15,
+        "expected_time_hours": 2.3,
+        "task_output": 1.15,
+        "efficiency_ratio_raw": 0.9583333333333333,
+        "efficiency_ratio_capped": 0.9583333333333333,
+        "weighted_errors": 0.5,
+        "active_adjustments": "investments"
+      },
+      {
+        "task_id": "T031",
+        "intern_id": "INT005",
+        "period": "W3",
+        "task_class": "B",
+        "multi_state": 1,
+        "investments": 0,
+        "rental": 1,
+        "k1": 0,
+        "timer_start": "2026-02-24 09:10:00",
+        "timer_end": "2026-02-24 14:22:00",
+        "timer_running": 0,
+        "actual_time_hours": 5.2,
+        "minor_errors": 2,
+        "major_errors": 0,
+        "completed_at": "2026-02-24 14:22:00",
+        "class_name": "Standard Individual Return",
+        "base_class_weight": 1.35,
+        "base_expected_hours": 3.5,
+        "adjustment_add": 0.30000000000000004,
+        "adjustment_multiplier": 1.3,
+        "expected_time_hours": 4.55,
+        "task_output": 1.7550000000000001,
+        "efficiency_ratio_raw": 0.8749999999999999,
+        "efficiency_ratio_capped": 0.8749999999999999,
+        "weighted_errors": 1.0,
+        "active_adjustments": "multi_state, rental"
+      },
+      {
+        "task_id": "T032",
+        "intern_id": "INT005",
+        "period": "W4",
+        "task_class": "C",
+        "multi_state": 0,
+        "investments": 0,
+        "rental": 1,
+        "k1": 1,
+        "timer_start": "2026-03-04 09:05:00",
+        "timer_end": "2026-03-04 17:05:00",
+        "timer_running": 0,
+        "actual_time_hours": 8.0,
+        "minor_errors": 1,
+        "major_errors": 1,
+        "completed_at": "2026-03-04 17:05:00",
+        "class_name": "Complex Individual Return",
+        "base_class_weight": 2.0,
+        "base_expected_hours": 6.0,
+        "adjustment_add": 0.35,
+        "adjustment_multiplier": 1.35,
+        "expected_time_hours": 8.100000000000001,
+        "task_output": 2.7,
+        "efficiency_ratio_raw": 1.0125000000000002,
+        "efficiency_ratio_capped": 1.0125000000000002,
+        "weighted_errors": 2.0,
+        "active_adjustments": "rental, k1"
+      }
+    ]
+  }
+}

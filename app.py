@@ -383,6 +383,238 @@ def format_attribution_records(records: list[dict], rename_map: dict | None = No
     return df
 
 
+def build_cross_intern_summary(results_by_intern: dict[str, ScoreResults]) -> pd.DataFrame:
+    """
+    Build a display-only cross-intern summary from existing scoring outputs.
+    """
+    rows = []
+    for intern_id in sorted(results_by_intern.keys()):
+        summary = results_by_intern[intern_id].summary
+        rows.append(
+            {
+                "intern_id": str(intern_id),
+                "final_score": summary["final_score"],
+                "performance_index": summary["performance_index"],
+                "output_score": summary["output_score"],
+                "efficiency_score": summary["efficiency_score"],
+                "accuracy_score": summary["accuracy_score"],
+                "contribution_modifier": summary["contribution_modifier"],
+                "total_weighted_errors": summary["total_weighted_errors"],
+            }
+        )
+
+    comparison_df = pd.DataFrame(rows)
+    return comparison_df
+
+
+def build_ranked_leaderboard(comparison_df: pd.DataFrame, metric: str) -> pd.DataFrame:
+    """
+    Rank interns descending by a selected summary metric.
+    """
+    ranked = comparison_df.sort_values(
+        [metric, "intern_id"], ascending=[False, True], kind="mergesort"
+    ).copy()
+    ranked.insert(0, "rank", range(1, len(ranked) + 1))
+    return ranked.reset_index(drop=True)
+
+
+def build_distribution_summary(comparison_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Compute cross-intern min/max/mean for selected metrics.
+    """
+    metric_cols = [
+        "efficiency_score",
+        "accuracy_score",
+        "contribution_modifier",
+        "performance_index",
+    ]
+    rows = []
+    for metric in metric_cols:
+        rows.append(
+            {
+                "metric": metric,
+                "min": comparison_df[metric].min(),
+                "max": comparison_df[metric].max(),
+                "mean": comparison_df[metric].mean(),
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def identify_widest_metric_variance(comparison_df: pd.DataFrame) -> dict[str, str | float]:
+    """
+    Identify the metric with the widest cross-intern spread (max - min).
+    """
+    metric_cols = [
+        "final_score",
+        "performance_index",
+        "output_score",
+        "efficiency_score",
+        "accuracy_score",
+        "contribution_modifier",
+    ]
+
+    widest = {
+        "metric": "",
+        "spread": -1.0,
+        "max_intern_id": "",
+        "max_value": 0.0,
+        "min_intern_id": "",
+        "min_value": 0.0,
+    }
+
+    for metric in metric_cols:
+        max_idx = comparison_df[metric].idxmax()
+        min_idx = comparison_df[metric].idxmin()
+        max_row = comparison_df.loc[max_idx]
+        min_row = comparison_df.loc[min_idx]
+        spread = float(max_row[metric] - min_row[metric])
+
+        if spread > widest["spread"]:
+            widest = {
+                "metric": metric,
+                "spread": spread,
+                "max_intern_id": str(max_row["intern_id"]),
+                "max_value": float(max_row[metric]),
+                "min_intern_id": str(min_row["intern_id"]),
+                "min_value": float(min_row[metric]),
+            }
+
+    return widest
+
+
+def identify_cross_intern_outliers(comparison_df: pd.DataFrame) -> dict[str, dict]:
+    """
+    Identify requested outlier rows from existing summary fields only.
+    """
+    lowest_efficiency = comparison_df.loc[comparison_df["efficiency_score"].idxmin()].to_dict()
+    highest_error_burden = comparison_df.loc[
+        comparison_df["total_weighted_errors"].idxmax()
+    ].to_dict()
+    weakest_contribution = comparison_df.loc[
+        comparison_df["contribution_modifier"].idxmin()
+    ].to_dict()
+    widest_metric_variance = identify_widest_metric_variance(comparison_df)
+
+    top_performer = comparison_df.loc[comparison_df["final_score"].idxmax()].to_dict()
+    lowest_performer = comparison_df.loc[comparison_df["final_score"].idxmin()].to_dict()
+
+    return {
+        "top_performer": top_performer,
+        "lowest_performer": lowest_performer,
+        "widest_metric_variance": widest_metric_variance,
+        "lowest_efficiency": lowest_efficiency,
+        "highest_error_burden": highest_error_burden,
+        "weakest_contribution": weakest_contribution,
+    }
+
+
+def render_cross_intern_insights(results_by_intern: dict[str, ScoreResults]) -> None:
+    st.header("Cross-Intern Insights")
+    st.caption("Read-only comparative layer derived from run_scoring() outputs.")
+
+    comparison_df = build_cross_intern_summary(results_by_intern)
+    if comparison_df.empty:
+        st.info("No intern results available for comparison.")
+        return
+
+    rank_metric = st.selectbox(
+        "Leaderboard ranking metric",
+        options=[
+            "final_score",
+            "performance_index",
+            "output_score",
+            "efficiency_score",
+            "accuracy_score",
+            "contribution_modifier",
+        ],
+        index=0,
+    )
+
+    st.subheader("Ranked Leaderboard")
+    leaderboard = build_ranked_leaderboard(comparison_df, rank_metric)
+    st.dataframe(
+        leaderboard[
+            [
+                "rank",
+                "intern_id",
+                "final_score",
+                "performance_index",
+                "output_score",
+                "efficiency_score",
+                "accuracy_score",
+                "contribution_modifier",
+            ]
+        ].round(4),
+        hide_index=True,
+        use_container_width=True,
+    )
+
+    insights = identify_cross_intern_outliers(comparison_df)
+    c1, c2, c3 = st.columns(3)
+    c1.metric(
+        "Top Performer (final_score)",
+        str(insights["top_performer"]["intern_id"]),
+        f"{insights['top_performer']['final_score']:.4f}",
+    )
+    c2.metric(
+        "Lowest Performer (final_score)",
+        str(insights["lowest_performer"]["intern_id"]),
+        f"{insights['lowest_performer']['final_score']:.4f}",
+    )
+    c3.metric(
+        "Widest Variance Across Metrics",
+        str(insights["widest_metric_variance"]["metric"]),
+        f"{insights['widest_metric_variance']['spread']:.4f}",
+    )
+    st.caption(
+        f"Max: {insights['widest_metric_variance']['max_intern_id']} "
+        f"({insights['widest_metric_variance']['max_value']:.4f}) | "
+        f"Min: {insights['widest_metric_variance']['min_intern_id']} "
+        f"({insights['widest_metric_variance']['min_value']:.4f})"
+    )
+
+    st.subheader("Metric Comparison Table")
+    st.dataframe(
+        comparison_df[
+            [
+                "intern_id",
+                "final_score",
+                "performance_index",
+                "output_score",
+                "efficiency_score",
+                "accuracy_score",
+                "contribution_modifier",
+                "total_weighted_errors",
+            ]
+        ].round(4),
+        hide_index=True,
+        use_container_width=True,
+    )
+
+    st.subheader("Distribution Summary")
+    distributions = build_distribution_summary(comparison_df).round(4)
+    st.dataframe(distributions, hide_index=True, use_container_width=True)
+
+    st.subheader("Outlier Highlights")
+    o1, o2, o3 = st.columns(3)
+    o1.metric(
+        "Lowest efficiency_score",
+        str(insights["lowest_efficiency"]["intern_id"]),
+        f"{insights['lowest_efficiency']['efficiency_score']:.4f}",
+    )
+    o2.metric(
+        "Highest total_weighted_errors",
+        str(insights["highest_error_burden"]["intern_id"]),
+        f"{insights['highest_error_burden']['total_weighted_errors']:.4f}",
+    )
+    o3.metric(
+        "Weakest contribution_modifier",
+        str(insights["weakest_contribution"]["intern_id"]),
+        f"{insights['weakest_contribution']['contribution_modifier']:.4f}",
+    )
+
+
 def render_overview(summary: dict) -> None:
     st.title("First-Year Tax Intern Performance Dashboard")
     st.caption("Busy season MVP demo with batch scoring and selected-intern view.")
@@ -879,6 +1111,7 @@ def main() -> None:
             "Intern Overview",
             "Task Breakdown",
             "Flags & Diagnostics",
+            "Cross-Intern Insights",
             "Admin Controls",
         ],
     )
@@ -889,6 +1122,8 @@ def main() -> None:
         render_task_breakdown(task_metrics)
     elif page == "Flags & Diagnostics":
         render_flags_diagnostics(summary, task_metrics, selected_results.attribution)
+    elif page == "Cross-Intern Insights":
+        render_cross_intern_insights(results_by_intern)
     elif page == "Admin Controls":
         render_admin_controls()
 
