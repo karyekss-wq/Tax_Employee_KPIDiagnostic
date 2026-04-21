@@ -6,6 +6,7 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
+from diagnostic_insights import build_diagnostic_insights
 from scoring import ScoreResults, run_scoring
 
 
@@ -615,6 +616,52 @@ def render_cross_intern_insights(results_by_intern: dict[str, ScoreResults]) -> 
     )
 
 
+def render_diagnostic_insights(results_by_intern: dict[str, ScoreResults], intern_id: str) -> None:
+    st.header("Diagnostic Insights")
+    st.caption("Deterministic interpretation layer derived from summary, attribution, and peer context.")
+
+    insights = build_diagnostic_insights(results_by_intern, intern_id)
+    intern_summary = insights["intern_summary"]
+    positioning = insights["cross_intern_positioning"]
+    attribution_explanations = insights["attribution_explanations"]
+
+    st.subheader("Intern Diagnostic Summary")
+    st.write(f"- **Primary strength driver:** {intern_summary['primary_strength_driver']}")
+    st.write(f"- **Primary weakness driver:** {intern_summary['primary_weakness_driver']}")
+    st.write(f"- **Dominant final score driver:** {intern_summary['dominant_final_score_driver']}")
+    st.write(
+        f"- **Performance index interpretation:** "
+        f"{intern_summary['performance_index_interpretation']}"
+    )
+
+    st.divider()
+
+    st.subheader("Cross-Intern Positioning")
+    p1, p2 = st.columns(2)
+    p1.metric(
+        "Final Score Rank",
+        f"{positioning['final_score_rank']} / {positioning['final_score_total']}",
+    )
+    p2.metric(
+        "Performance Index Rank",
+        f"{positioning['performance_index_rank']} / {positioning['performance_index_total']}",
+    )
+    st.write(f"- {positioning['final_score_positioning']}")
+    st.write(f"- {positioning['performance_index_positioning']}")
+    st.write(f"- {positioning['strongest_peer_advantage']}")
+    st.write(f"- {positioning['largest_peer_gap']}")
+    for highlight in positioning["peer_comparison_highlights"]:
+        st.write(f"- {highlight}")
+
+    st.divider()
+
+    st.subheader("Attribution-Based Highlights")
+    st.write(f"- **Output:** {attribution_explanations['output_explanation']}")
+    st.write(f"- **Efficiency:** {attribution_explanations['efficiency_explanation']}")
+    st.write(f"- **Accuracy:** {attribution_explanations['accuracy_explanation']}")
+    st.write(f"- **Contribution:** {attribution_explanations['contribution_explanation']}")
+
+
 def render_overview(summary: dict) -> None:
     st.title("First-Year Tax Intern Performance Dashboard")
     st.caption("Busy season MVP demo with batch scoring and selected-intern view.")
@@ -1112,6 +1159,7 @@ def main() -> None:
             "Task Breakdown",
             "Flags & Diagnostics",
             "Cross-Intern Insights",
+            "Diagnostic Insights",
             "Admin Controls",
         ],
     )
@@ -1124,6 +1172,8 @@ def main() -> None:
         render_flags_diagnostics(summary, task_metrics, selected_results.attribution)
     elif page == "Cross-Intern Insights":
         render_cross_intern_insights(results_by_intern)
+    elif page == "Diagnostic Insights":
+        render_diagnostic_insights(results_by_intern, selected_intern_id)
     elif page == "Admin Controls":
         render_admin_controls()
 
