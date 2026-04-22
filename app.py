@@ -6,7 +6,9 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
+from cross_intern_patterns import build_cross_intern_patterns
 from diagnostic_insights import build_diagnostic_insights
+from manager_actions import build_manager_actions
 from scoring import ScoreResults, run_scoring
 
 
@@ -662,6 +664,197 @@ def render_diagnostic_insights(results_by_intern: dict[str, ScoreResults], inter
     st.write(f"- **Contribution:** {attribution_explanations['contribution_explanation']}")
 
 
+def render_manager_view(results_by_intern: dict[str, ScoreResults], default_intern_id: str) -> None:
+    st.header("Manager View")
+    st.caption("Decision-first manager summary built from existing deterministic analytics outputs.")
+
+    comparison_df = build_cross_intern_summary(results_by_intern)
+    if comparison_df.empty:
+        st.info("No intern results available.")
+        return
+
+    patterns_payload = build_cross_intern_patterns(results_by_intern)
+    actions_payload = build_manager_actions(results_by_intern)
+
+    # Executive Summary
+    top_idx = comparison_df["final_score"].idxmax()
+    low_idx = comparison_df["final_score"].idxmin()
+    top_intern = comparison_df.loc[top_idx]
+    low_intern = comparison_df.loc[low_idx]
+    summary = patterns_payload["pattern_summary"]
+    action_summary = actions_payload["action_summary"]
+
+    st.subheader("Executive Summary")
+    e1, e2, e3, e4, e5, e6 = st.columns(6)
+    e1.metric("Total Interns", int(len(comparison_df)))
+    e2.metric("Top Performer", str(top_intern["intern_id"]), f"{float(top_intern['final_score']):.4f}")
+    e3.metric("Lowest Performer", str(low_intern["intern_id"]), f"{float(low_intern['final_score']):.4f}")
+    e4.metric("High-Priority Actions", int(action_summary["high_priority_count"]))
+    e5.metric("Systemic Patterns", int(summary["systemic_count"]))
+    e6.metric("Emerging Patterns", int(summary["emerging_count"]))
+
+    st.divider()
+
+    # Priority Action Queue
+    st.subheader("Priority Action Queue")
+    all_actions = actions_payload["intern_actions"] + actions_payload["team_actions"]
+    priority_filter = st.multiselect(
+        "Filter action priorities",
+        options=["high", "moderate", "low"],
+        default=["high", "moderate", "low"],
+        key="manager_action_priority_filter",
+    )
+    scope_filter = st.multiselect(
+        "Filter action scopes",
+        options=["intern", "team", "system"],
+        default=["intern", "team", "system"],
+        key="manager_action_scope_filter",
+    )
+
+    priority_order = {"high": 0, "moderate": 1, "low": 2}
+    filtered_actions = [
+        action
+        for action in all_actions
+        if action["priority_level"] in priority_filter and action["target_scope"] in scope_filter
+    ]
+    filtered_actions = sorted(
+        filtered_actions,
+        key=lambda action: (
+            priority_order.get(action["priority_level"], 99),
+            action["target_scope"],
+            action["action_type"],
+            action["target_id"],
+            action["action_key"],
+        ),
+    )
+
+    if not filtered_actions:
+        st.info("No actions match the selected filters.")
+    else:
+        action_rows = []
+        for action in filtered_actions:
+            action_rows.append(
+                {
+                    "Priority": action["priority_level"],
+                    "Scope": action["target_scope"],
+                    "Type": action["action_type"],
+                    "Target": action["target_id"],
+                    "Message": action["message"],
+                    "Rationale": action["rationale"],
+                    "Evidence Sources": ", ".join(action["evidence_sources"]),
+                }
+            )
+        st.dataframe(pd.DataFrame(action_rows), hide_index=True, use_container_width=True)
+
+    st.divider()
+
+    # Team/System Pattern Highlights
+    st.subheader("Team/System Pattern Highlights")
+    scope_class_filter = st.multiselect(
+        "Filter pattern scope classification",
+        options=["systemic", "emerging", "isolated"],
+        default=["systemic", "emerging"],
+        key="manager_pattern_scope_filter",
+    )
+    pattern_rows = []
+    for pattern in patterns_payload["system_patterns"]:
+        if pattern["scope_classification"] not in scope_class_filter:
+            continue
+        pattern_rows.append(
+            {
+                "Pattern Type": pattern["pattern_type"],
+                "Message": pattern["message"],
+                "Frequency": round(float(pattern["frequency"]), 4),
+                "Intern Coverage": f"{pattern['intern_count']}/{pattern['total_interns']}",
+                "Scope": pattern["scope_classification"],
+                "Severity": pattern["severity"],
+            }
+        )
+
+    if pattern_rows:
+        st.dataframe(pd.DataFrame(pattern_rows), hide_index=True, use_container_width=True)
+    else:
+        st.info("No patterns match the selected scope filter.")
+
+    st.divider()
+
+    # Intern Risk / Strength Snapshot
+    st.subheader("Intern Risk / Strength Snapshot")
+    top_action_by_intern: dict[str, dict] = {}
+    for action in actions_payload["intern_actions"]:
+        iid = str(action["target_id"])
+        if iid not in top_action_by_intern:
+            top_action_by_intern[iid] = action
+
+    snapshot_rows = []
+    for intern_id in sorted(results_by_intern.keys()):
+        intern_summary = results_by_intern[intern_id].summary
+        insights = build_diagnostic_insights(results_by_intern, intern_id)
+        top_action = top_action_by_intern.get(str(intern_id))
+        snapshot_rows.append(
+            {
+                "Intern ID": str(intern_id),
+                "Category": intern_summary["performance_category"],
+                "Final Score": round(float(intern_summary["final_score"]), 4),
+                "Primary Strength": insights["intern_summary"]["primary_strength_driver"],
+                "Primary Weakness": insights["intern_summary"]["primary_weakness_driver"],
+                "Top Action Priority": top_action["priority_level"] if top_action else "none",
+                "Top Action Type": top_action["action_type"] if top_action else "none",
+                "Action Status": "Action queued" if top_action else "No active action",
+            }
+        )
+    st.dataframe(pd.DataFrame(snapshot_rows), hide_index=True, use_container_width=True)
+
+    st.divider()
+
+    # Drilldown Selector
+    st.subheader("Intern Drilldown")
+    drilldown_intern_id = st.selectbox(
+        "Select intern for focused manager summary",
+        options=sorted(results_by_intern.keys()),
+        index=sorted(results_by_intern.keys()).index(default_intern_id),
+        key="manager_drilldown_intern",
+    )
+    selected = results_by_intern[drilldown_intern_id]
+    selected_summary = selected.summary
+    selected_insights = build_diagnostic_insights(results_by_intern, drilldown_intern_id)
+
+    d1, d2, d3, d4 = st.columns(4)
+    d1.metric("Final Score", f"{float(selected_summary['final_score']):.4f}")
+    d2.metric("Performance Index", f"{float(selected_summary['performance_index']):.4f}")
+    d3.metric("Category", str(selected_summary["performance_category"]))
+    d4.metric("Total Tasks", int(selected_summary["total_tasks"]))
+
+    st.write(f"- **Primary strength:** {selected_insights['intern_summary']['primary_strength_driver']}")
+    st.write(f"- **Primary weakness:** {selected_insights['intern_summary']['primary_weakness_driver']}")
+    st.write(
+        f"- **Dominant final-score driver:** "
+        f"{selected_insights['intern_summary']['dominant_final_score_driver']}"
+    )
+
+    selected_actions = [
+        action
+        for action in actions_payload["intern_actions"]
+        if str(action["target_id"]) == str(drilldown_intern_id)
+    ]
+    st.write("**Top Intern Actions**")
+    if selected_actions:
+        for action in selected_actions[:3]:
+            st.write(
+                f"- [{action['priority_level']}] {action['action_type']}: "
+                f"{action['message']} ({action['rationale']})"
+            )
+    else:
+        st.write("- No intern-specific manager actions currently queued.")
+
+    attr = selected_insights["attribution_explanations"]
+    st.write("**Key Attribution Highlights**")
+    st.write(f"- Output: {attr['output_explanation']}")
+    st.write(f"- Efficiency: {attr['efficiency_explanation']}")
+    st.write(f"- Accuracy: {attr['accuracy_explanation']}")
+    st.write(f"- Contribution: {attr['contribution_explanation']}")
+
+
 def render_overview(summary: dict) -> None:
     st.title("First-Year Tax Intern Performance Dashboard")
     st.caption("Busy season MVP demo with batch scoring and selected-intern view.")
@@ -1155,6 +1348,7 @@ def main() -> None:
     page = st.sidebar.radio(
         "Navigate",
         [
+            "Manager View",
             "Intern Overview",
             "Task Breakdown",
             "Flags & Diagnostics",
@@ -1164,7 +1358,9 @@ def main() -> None:
         ],
     )
 
-    if page == "Intern Overview":
+    if page == "Manager View":
+        render_manager_view(results_by_intern, selected_intern_id)
+    elif page == "Intern Overview":
         render_overview(summary)
     elif page == "Task Breakdown":
         render_task_breakdown(task_metrics)
