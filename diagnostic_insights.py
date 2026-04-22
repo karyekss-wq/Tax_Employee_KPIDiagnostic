@@ -4,6 +4,7 @@ from typing import Any
 
 import pandas as pd
 
+from normalized_insights import build_normalized_insights
 
 COMPONENT_TIE_BREAK_ORDER = [
     "output_score",
@@ -407,8 +408,19 @@ def build_diagnostic_insights(results_by_intern: dict[str, Any], intern_id: str)
     """
     Build full deterministic diagnostic interpretation payload for one intern.
     """
+    intern_summary = build_intern_diagnostic_summary(results_by_intern, intern_id)
+    cross_intern_positioning = build_cross_intern_positioning(results_by_intern, intern_id)
+    attribution_explanations = build_attribution_explanations(results_by_intern, intern_id)
+    normalized_insights = build_normalized_insights(
+        results_by_intern=results_by_intern,
+        intern_id=intern_id,
+        intern_summary=intern_summary,
+        cross_intern_positioning=cross_intern_positioning,
+        attribution_explanations=attribution_explanations,
+    )
     return {
-        "intern_summary": build_intern_diagnostic_summary(results_by_intern, intern_id),
-        "cross_intern_positioning": build_cross_intern_positioning(results_by_intern, intern_id),
-        "attribution_explanations": build_attribution_explanations(results_by_intern, intern_id),
+        "intern_summary": intern_summary,
+        "cross_intern_positioning": cross_intern_positioning,
+        "attribution_explanations": attribution_explanations,
+        "normalized_insights": normalized_insights,
     }
