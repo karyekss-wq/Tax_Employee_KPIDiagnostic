@@ -1030,14 +1030,19 @@ def score_single_intern(
     return ScoreResults(task_metrics=task_metrics, summary=summary, attribution=attribution)
 
 
-def run_scoring() -> Dict[str, ScoreResults]:
+def run_scoring_for_inputs(
+    class_config: pd.DataFrame,
+    adjustment_config: pd.DataFrame,
+    tasks: pd.DataFrame,
+    flags: pd.DataFrame,
+) -> Dict[str, ScoreResults]:
     """
-    Full scoring pipeline for the MVP across all interns.
+    Full scoring pipeline for provided in-memory inputs across all interns.
     Global validation runs once and blocks all scoring on failure.
+
     Returns:
         dict[str, ScoreResults] keyed by intern_id.
     """
-    class_config, adjustment_config, tasks, flags = load_csvs()
     validate_inputs(class_config, adjustment_config, tasks, flags)
     flags = prepare_flags(flags)
 
@@ -1056,6 +1061,17 @@ def run_scoring() -> Dict[str, ScoreResults]:
         )
 
     return results_by_intern
+
+
+def run_scoring() -> Dict[str, ScoreResults]:
+    """
+    Full scoring pipeline for the MVP across all interns loaded from CSV.
+    Global validation runs once and blocks all scoring on failure.
+    Returns:
+        dict[str, ScoreResults] keyed by intern_id.
+    """
+    class_config, adjustment_config, tasks, flags = load_csvs()
+    return run_scoring_for_inputs(class_config, adjustment_config, tasks, flags)
 
 
 def print_summary(results: ScoreResults) -> None:

@@ -7,9 +7,18 @@ import pandas as pd
 import streamlit as st
 
 from cross_intern_patterns import build_cross_intern_patterns
+from delta_analysis import build_simulation_deltas
 from diagnostic_insights import build_diagnostic_insights
 from manager_actions import build_manager_actions
+from scenario_state import (
+    delete_scenario,
+    list_scenarios,
+    load_scenario,
+    run_saved_scenario,
+    save_scenario,
+)
 from scoring import ScoreResults, run_scoring
+from simulation import run_simulation
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -664,6 +673,256 @@ def render_diagnostic_insights(results_by_intern: dict[str, ScoreResults], inter
     st.write(f"- **Contribution:** {attribution_explanations['contribution_explanation']}")
 
 
+def render_scenario_simulation() -> None:
+    st.subheader("Scenario Simulation")
+    st.caption("Sandboxed what-if run. Edits are applied in memory only.")
+
+    class_config = load_class_config()
+    adjustment_config = load_adjustment_config()
+    saved_scenarios = list_scenarios()
+
+    st.write("Saved Scenarios")
+    if saved_scenarios:
+        scenario_options = [row["scenario_id"] for row in saved_scenarios]
+        selected_scenario_id = st.selectbox(
+            "Saved scenario",
+            options=scenario_options,
+            format_func=lambda sid: next(
+                row["scenario_name"] for row in saved_scenarios if row["scenario_id"] == sid
+            ),
+            key="saved_scenario_selector",
+        )
+        s1, s2, s3 = st.columns(3)
+        if s1.button("Load Scenario", key="load_saved_scenario"):
+            try:
+                selected_record = load_scenario(selected_scenario_id)
+                st.session_state["loaded_scenario_id"] = selected_record["scenario_id"]
+                st.session_state["loaded_scenario_name"] = selected_record["scenario_name"]
+                st.session_state["loaded_scenario_overrides"] = selected_record["overrides"]
+                st.rerun()
+            except (FileNotFoundError, ValueError) as exc:
+                st.error(str(exc))
+        if s2.button("Run Saved Scenario", key="run_saved_scenario"):
+            try:
+                saved_run = run_saved_scenario(selected_scenario_id)
+                render_simulation_result(
+                    saved_run["simulation_result"], saved_run["deltas"]
+                )
+            except (FileNotFoundError, ValueError) as exc:
+                st.error(str(exc))
+        if s3.button("Delete Scenario", key="delete_saved_scenario"):
+            if delete_scenario(selected_scenario_id):
+                st.success(f"Deleted scenario {selected_scenario_id}.")
+                st.rerun()
+            st.warning(f"Scenario {selected_scenario_id} was not found.")
+
+        st.dataframe(
+            pd.DataFrame(saved_scenarios),
+            hide_index=True,
+            use_container_width=True,
+        )
+    else:
+        st.info("No saved scenarios yet.")
+
+    loaded_overrides = st.session_state.get("loaded_scenario_overrides")
+    loaded_name = st.session_state.get("loaded_scenario_name", "Manager what-if scenario")
+    class_editor_source = class_config[
+        ["task_class", "class_name", "base_expected_hours", "base_class_weight"]
+    ].copy()
+    adjustment_editor_source = adjustment_config[
+        ["adjustment_code", "label", "multiplier_add", "min_bound", "max_bound"]
+    ].copy()
+    if loaded_overrides:
+        class_expected = loaded_overrides["class_expected_hours_overrides"]
+        class_weights = loaded_overrides["class_weight_overrides"]
+        adjustment_multipliers = loaded_overrides["adjustment_multiplier_overrides"]
+        for task_class, value in class_expected.items():
+            class_editor_source.loc[
+                class_editor_source["task_class"] == task_class, "base_expected_hours"
+            ] = value
+        for task_class, value in class_weights.items():
+            class_editor_source.loc[
+                class_editor_source["task_class"] == task_class, "base_class_weight"
+            ] = value
+        for adjustment_code, value in adjustment_multipliers.items():
+            adjustment_editor_source.loc[
+                adjustment_editor_source["adjustment_code"] == adjustment_code,
+                "multiplier_add",
+            ] = value
+
+    editor_key_suffix = st.session_state.get("loaded_scenario_id", "draft")
+
+    with st.form("scenario_simulation_form"):
+        scenario_name = st.text_input("Scenario name", value=loaded_name)
+
+        st.write("Class Expected Hours and Weights")
+        class_editor = st.data_editor(
+            class_editor_source,
+            hide_index=True,
+            use_container_width=True,
+            disabled=["task_class", "class_name"],
+            key=f"scenario_class_editor_{editor_key_suffix}",
+        )
+
+        st.write("Adjustment Multipliers")
+        adjustment_editor = st.data_editor(
+            adjustment_editor_source,
+            hide_index=True,
+            use_container_width=True,
+            disabled=["adjustment_code", "label", "min_bound", "max_bound"],
+            key=f"scenario_adjustment_editor_{editor_key_suffix}",
+        )
+
+        save_after_run = st.checkbox("Save scenario after run", value=False)
+        overwrite_existing = st.checkbox("Overwrite existing scenario", value=False)
+        submitted = st.form_submit_button("Run Simulation")
+
+    if not submitted:
+        return
+
+    base_class = class_config.set_index("task_class")
+    edited_class = class_editor.set_index("task_class")
+    expected_hours_overrides = {}
+    class_weight_overrides = {}
+    for task_class in edited_class.index:
+        if edited_class.loc[task_class, "base_expected_hours"] != base_class.loc[task_class, "base_expected_hours"]:
+            expected_hours_overrides[str(task_class)] = edited_class.loc[
+                task_class, "base_expected_hours"
+            ]
+        if edited_class.loc[task_class, "base_class_weight"] != base_class.loc[task_class, "base_class_weight"]:
+            class_weight_overrides[str(task_class)] = edited_class.loc[
+                task_class, "base_class_weight"
+            ]
+
+    base_adjustment = adjustment_config.set_index("adjustment_code")
+    edited_adjustment = adjustment_editor.set_index("adjustment_code")
+    adjustment_overrides = {}
+    for adjustment_code in edited_adjustment.index:
+        if edited_adjustment.loc[adjustment_code, "multiplier_add"] != base_adjustment.loc[adjustment_code, "multiplier_add"]:
+            adjustment_overrides[str(adjustment_code)] = edited_adjustment.loc[
+                adjustment_code, "multiplier_add"
+            ]
+
+    try:
+        if save_after_run:
+            saved_record = save_scenario(
+                scenario_name=scenario_name,
+                class_expected_hours_overrides=expected_hours_overrides,
+                class_weight_overrides=class_weight_overrides,
+                adjustment_multiplier_overrides=adjustment_overrides,
+                overwrite=overwrite_existing,
+            )
+            st.success(f"Saved scenario {saved_record['scenario_id']}.")
+
+        simulation_result = run_simulation(
+            scenario_name=scenario_name,
+            class_expected_hours_overrides=expected_hours_overrides,
+            class_weight_overrides=class_weight_overrides,
+            adjustment_multiplier_overrides=adjustment_overrides,
+        )
+        deltas = build_simulation_deltas(
+            simulation_result["baseline"], simulation_result["simulated"]
+        )
+    except ValueError as exc:
+        st.error(str(exc))
+        return
+
+    render_simulation_result(simulation_result, deltas)
+
+
+def render_simulation_result(simulation_result: dict, deltas: dict) -> None:
+    baseline_scores = simulation_result["baseline"]["scores"]
+    simulated_scores = simulation_result["simulated"]["scores"]
+    comparison_rows = []
+    for intern_id in sorted(baseline_scores.keys()):
+        baseline_summary = baseline_scores[intern_id].summary
+        simulated_summary = simulated_scores[intern_id].summary
+        comparison_rows.append(
+            {
+                "Intern ID": str(intern_id),
+                "Baseline Final Score": float(baseline_summary["final_score"]),
+                "Simulated Final Score": float(simulated_summary["final_score"]),
+                "Baseline Category": baseline_summary["performance_category"],
+                "Simulated Category": simulated_summary["performance_category"],
+            }
+        )
+
+    st.write(f"Overrides applied: {simulation_result['scenario_metadata']['override_count']}")
+    st.dataframe(
+        pd.DataFrame(comparison_rows).round(4),
+        hide_index=True,
+        use_container_width=True,
+    )
+
+    baseline_patterns = simulation_result["baseline"]["system_patterns"]["pattern_summary"]
+    simulated_patterns = simulation_result["simulated"]["system_patterns"]["pattern_summary"]
+    baseline_actions = simulation_result["baseline"]["manager_actions"]["action_summary"]
+    simulated_actions = simulation_result["simulated"]["manager_actions"]["action_summary"]
+
+    a1, a2, p1, p2 = st.columns(4)
+    a1.metric(
+        "Baseline Actions",
+        int(baseline_actions["total_intern_actions"] + baseline_actions["total_team_actions"]),
+    )
+    a2.metric(
+        "Simulated Actions",
+        int(simulated_actions["total_intern_actions"] + simulated_actions["total_team_actions"]),
+    )
+    p1.metric("Baseline Patterns", int(baseline_patterns["total_patterns"]))
+    p2.metric("Simulated Patterns", int(simulated_patterns["total_patterns"]))
+
+    st.write("Delta Summary")
+    changed_scores = [
+        row
+        for row in deltas["metric_deltas"]
+        if row["metric_name"] == "final_score" and row["direction"] != "no_change"
+    ]
+    category_transitions = [
+        row for row in deltas["category_changes"] if row["changed"]
+    ]
+    action_transitions = [
+        row
+        for row in deltas["action_changes"]
+        if row["change_type"] in {"added", "removed", "priority_changed"}
+    ]
+    pattern_scope_shifts = [
+        row
+        for row in deltas["pattern_changes"]
+        if row["change_type"] in {"scope_changed", "introduced", "resolved"}
+    ]
+
+    d1, d2, d3, d4 = st.columns(4)
+    d1.metric("Changed Scores", len(changed_scores))
+    d2.metric("Category Transitions", len(category_transitions))
+    d3.metric("Action Changes", len(action_transitions))
+    d4.metric("Pattern Scope Shifts", len(pattern_scope_shifts))
+
+    if changed_scores:
+        st.dataframe(
+            pd.DataFrame(changed_scores).round(4),
+            hide_index=True,
+            use_container_width=True,
+        )
+    if category_transitions:
+        st.dataframe(
+            pd.DataFrame(category_transitions),
+            hide_index=True,
+            use_container_width=True,
+        )
+    if action_transitions:
+        st.dataframe(
+            pd.DataFrame(action_transitions),
+            hide_index=True,
+            use_container_width=True,
+        )
+    if pattern_scope_shifts:
+        st.dataframe(
+            pd.DataFrame(pattern_scope_shifts).round(4),
+            hide_index=True,
+            use_container_width=True,
+        )
+
+
 def render_manager_view(results_by_intern: dict[str, ScoreResults], default_intern_id: str) -> None:
     st.header("Manager View")
     st.caption("Decision-first manager summary built from existing deterministic analytics outputs.")
@@ -692,6 +951,10 @@ def render_manager_view(results_by_intern: dict[str, ScoreResults], default_inte
     e4.metric("High-Priority Actions", int(action_summary["high_priority_count"]))
     e5.metric("Systemic Patterns", int(summary["systemic_count"]))
     e6.metric("Emerging Patterns", int(summary["emerging_count"]))
+
+    st.divider()
+
+    render_scenario_simulation()
 
     st.divider()
 
