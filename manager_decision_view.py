@@ -15,6 +15,13 @@ from historical_tracking import (
     save_historical_snapshot,
 )
 from manager_actions import build_manager_actions
+from persistence import (
+    compare_config_versions,
+    ensure_storage_dirs,
+    list_config_versions,
+    read_audit_events,
+    save_config_version,
+)
 from scenario_state import (
     delete_scenario,
     list_scenarios,
@@ -151,6 +158,68 @@ def extract_historical_trend_summary(comparison: dict[str, Any]) -> dict[str, in
         "missing_in_period_count",
     ]
     return {key: int(_require_key(summary, key, "trend_summary")) for key in required}
+
+
+def build_persistence_status(
+    *,
+    storage_paths: dict[str, Any],
+    saved_scenarios: list[dict[str, Any]],
+    historical_snapshots: list[dict[str, Any]],
+    config_versions: list[dict[str, Any]],
+    audit_events: list[dict[str, Any]],
+) -> dict[str, Any]:
+    required_paths = ["scenarios", "history", "audit", "config_versions"]
+    path_summary = {
+        key: str(_require_key(storage_paths, key, "storage_paths")) for key in required_paths
+    }
+    return {
+        "storage_paths": path_summary,
+        "scenario_count": len(saved_scenarios),
+        "history_snapshot_count": len(historical_snapshots),
+        "config_version_count": len(config_versions),
+        "audit_event_count": len(audit_events),
+    }
+
+
+def format_recent_audit_events(
+    audit_events: list[dict[str, Any]],
+    *,
+    limit: int = 5,
+) -> list[dict[str, Any]]:
+    if limit < 0:
+        raise ValueError("limit must be nonnegative.")
+    rows: list[dict[str, Any]] = []
+    for event in audit_events[-limit:]:
+        rows.append(
+            {
+                "Created At": _require_key(event, "created_at", "audit event"),
+                "Event Type": _require_key(event, "event_type", "audit event"),
+                "Target Type": _require_key(event, "target_type", "audit event"),
+                "Target ID": _require_key(event, "target_id", "audit event"),
+            }
+        )
+    return rows
+
+
+def build_config_version_comparison_rows(comparison: dict[str, Any]) -> list[dict[str, Any]]:
+    source_comparisons = _require_key(
+        comparison, "source_comparisons", "config version comparison"
+    )
+    if not isinstance(source_comparisons, list):
+        raise ValueError("config version comparison source_comparisons must be a list.")
+    rows: list[dict[str, Any]] = []
+    for row in source_comparisons:
+        if not isinstance(row, dict):
+            raise ValueError("config version comparison rows must be dicts.")
+        rows.append(
+            {
+                "Source": _require_key(row, "source_key", "source comparison"),
+                "Change Type": _require_key(row, "change_type", "source comparison"),
+                "From Hash": _require_key(row, "from_hash", "source comparison"),
+                "To Hash": _require_key(row, "to_hash", "source comparison"),
+            }
+        )
+    return rows
 
 
 def build_override_dicts(
@@ -569,6 +638,104 @@ def render_historical_tracking_panel(results_by_intern: dict[str, ScoreResults])
         st.dataframe(pd.DataFrame(category_rows), hide_index=True, use_container_width=True)
 
 
+def render_persistence_audit_panel(
+    *,
+    saved_scenarios: list[dict[str, Any]],
+    historical_snapshots: list[dict[str, Any]],
+) -> None:
+    try:
+        storage_paths = ensure_storage_dirs()
+        config_versions = list_config_versions()
+        audit_events = read_audit_events()
+    except (FileNotFoundError, ValueError) as exc:
+        st.error(str(exc))
+        return
+
+    status = build_persistence_status(
+        storage_paths=storage_paths,
+        saved_scenarios=saved_scenarios,
+        historical_snapshots=historical_snapshots,
+        config_versions=config_versions,
+        audit_events=audit_events,
+    )
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Scenarios", status["scenario_count"])
+    c2.metric("History Snapshots", status["history_snapshot_count"])
+    c3.metric("Config Versions", status["config_version_count"])
+    c4.metric("Audit Events", status["audit_event_count"])
+
+    with st.expander("Storage Paths", expanded=False):
+        st.dataframe(
+            pd.DataFrame(
+                [
+                    {"Storage Area": key, "Path": value}
+                    for key, value in status["storage_paths"].items()
+                ]
+            ),
+            hide_index=True,
+            use_container_width=True,
+        )
+
+    with st.form("decision_config_version_form"):
+        version_name = st.text_input("Config version name", value="Current Baseline Config")
+        overwrite_version = st.checkbox("Overwrite existing config version", value=False)
+        save_version = st.form_submit_button("Create Config Version Metadata")
+
+    if save_version:
+        try:
+            saved = save_config_version(
+                config_version_name=version_name,
+                overwrite=overwrite_version,
+            )
+            st.success(f"Saved config version {saved['config_version_id']}.")
+            st.rerun()
+        except (FileNotFoundError, ValueError) as exc:
+            st.error(str(exc))
+
+    config_versions = list_config_versions()
+    if config_versions:
+        st.write("Config Versions")
+        st.dataframe(pd.DataFrame(config_versions), hide_index=True, use_container_width=True)
+    else:
+        st.info("No config versions saved yet.")
+
+    if len(config_versions) >= 2:
+        version_ids = [row["config_version_id"] for row in config_versions]
+        c_from, c_to = st.columns(2)
+        from_version = c_from.selectbox(
+            "From config version",
+            options=version_ids,
+            key="decision_config_version_from",
+        )
+        to_version = c_to.selectbox(
+            "To config version",
+            options=version_ids,
+            key="decision_config_version_to",
+        )
+        if st.button("Compare Config Versions", key="decision_compare_config_versions"):
+            try:
+                comparison = compare_config_versions(from_version, to_version)
+                st.session_state["last_config_version_comparison"] = comparison
+            except (FileNotFoundError, ValueError) as exc:
+                st.error(str(exc))
+
+    comparison = st.session_state.get("last_config_version_comparison")
+    if comparison:
+        st.write("Config Version Comparison")
+        st.dataframe(
+            pd.DataFrame(build_config_version_comparison_rows(comparison)),
+            hide_index=True,
+            use_container_width=True,
+        )
+
+    recent_events = format_recent_audit_events(read_audit_events(), limit=5)
+    st.write("Recent Audit Events")
+    if recent_events:
+        st.dataframe(pd.DataFrame(recent_events), hide_index=True, use_container_width=True)
+    else:
+        st.info("No audit events recorded yet.")
+
+
 def render_manager_decision_dashboard(
     *,
     results_by_intern: dict[str, ScoreResults],
@@ -595,6 +762,7 @@ def render_manager_decision_dashboard(
             "Delta Impact",
             "Scenario Library",
             "Historical Tracking",
+            "Persistence & Audit",
         ]
     )
 
@@ -624,3 +792,9 @@ def render_manager_decision_dashboard(
 
     with tabs[4]:
         render_historical_tracking_panel(results_by_intern)
+
+    with tabs[5]:
+        render_persistence_audit_panel(
+            saved_scenarios=saved_scenarios,
+            historical_snapshots=historical_snapshots,
+        )

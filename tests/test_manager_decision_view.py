@@ -7,9 +7,12 @@ import pytest
 
 from manager_decision_view import (
     build_baseline_vs_simulated_rows,
+    build_config_version_comparison_rows,
     build_decision_summary,
     build_delta_preview,
+    build_persistence_status,
     extract_historical_trend_summary,
+    format_recent_audit_events,
     group_changes_by_type,
 )
 
@@ -173,3 +176,81 @@ def test_malformed_required_structures_fail_clearly() -> None:
 
     with pytest.raises(ValueError, match="missing required key 'change_type'"):
         group_changes_by_type([{"action_key": "a1"}])
+
+
+def test_persistence_status_summary_extracts_counts() -> None:
+    status = build_persistence_status(
+        storage_paths={
+            "scenarios": "/tmp/scenarios",
+            "history": "/tmp/history",
+            "audit": "/tmp/audit",
+            "config_versions": "/tmp/config_versions",
+        },
+        saved_scenarios=[{"scenario_id": "s1"}],
+        historical_snapshots=[{"run_id": "r1"}, {"run_id": "r2"}],
+        config_versions=[{"config_version_id": "v1"}],
+        audit_events=[{"event_id": "e1"}, {"event_id": "e2"}, {"event_id": "e3"}],
+    )
+    assert status == {
+        "storage_paths": {
+            "scenarios": "/tmp/scenarios",
+            "history": "/tmp/history",
+            "audit": "/tmp/audit",
+            "config_versions": "/tmp/config_versions",
+        },
+        "scenario_count": 1,
+        "history_snapshot_count": 2,
+        "config_version_count": 1,
+        "audit_event_count": 3,
+    }
+
+
+def test_audit_event_display_formatting_limits_recent_rows() -> None:
+    rows = format_recent_audit_events(
+        [
+            {
+                "created_at": "2026-05-13T00:00:00+00:00",
+                "event_type": "one",
+                "target_type": "scenario",
+                "target_id": "a",
+            },
+            {
+                "created_at": "2026-05-13T00:00:01+00:00",
+                "event_type": "two",
+                "target_type": "history",
+                "target_id": "b",
+            },
+        ],
+        limit=1,
+    )
+    assert rows == [
+        {
+            "Created At": "2026-05-13T00:00:01+00:00",
+            "Event Type": "two",
+            "Target Type": "history",
+            "Target ID": "b",
+        }
+    ]
+
+
+def test_config_version_comparison_helper_output() -> None:
+    rows = build_config_version_comparison_rows(
+        {
+            "source_comparisons": [
+                {
+                    "source_key": "tasks",
+                    "change_type": "changed",
+                    "from_hash": "a",
+                    "to_hash": "b",
+                }
+            ]
+        }
+    )
+    assert rows == [
+        {
+            "Source": "tasks",
+            "Change Type": "changed",
+            "From Hash": "a",
+            "To Hash": "b",
+        }
+    ]
